@@ -37,8 +37,8 @@ You can find more information about [NetOffice Git repository in documentation](
 
 ### Branches
 
-* `develop` - main branch for development
-* `master` - main branch for stable releases
+* `master` - main branch for development
+* `import/osdn_repository` - branch with NetOffice source code imported from OSDN repository
 * `import/legacy_repository` - archive branch of original NetOffice source code imported from CodePlex Subversion
 * `import/netoffice_1.7.4-alpha` - archive branch of NetOffice 1.7.4 source code provided by Sebastian
 * `import/netoffice_1.7.4.1-alpha` - archive branch of NetOffice 1.7.4.1 source code provided by Sebastian
@@ -47,8 +47,8 @@ You can find more information about [NetOffice Git repository in documentation](
 
 NetOffice source code is licensed under [MIT License](LICENSE.txt).
 
-Copyright © 2011-2017 Sebastian Lange  
-Copyright © 2015-2016 Jozef Izso
+Copyright © 2011-2018 Sebastian Lange  
+Copyright © 2015-2018 Jozef Izso
 
 
 [VSTO]: http://msdn.microsoft.com/en-us/library/jj620922.aspx
