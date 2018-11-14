@@ -12,13 +12,28 @@ namespace NetOffice.MSComctlLibApi.Behind
 	/// <summary>
 	/// DispatchInterface IListItems 
 	/// SupportByVersion MSComctlLib, 6
-	/// </summary>	[SupportByVersion("MSComctlLib", 6)]
-	[EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Property, "Item")]
+	/// </summary>
 	public class IListItems : COMObject, NetOffice.MSComctlLibApi.IListItems
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.MSComctlLibApi.IListItems);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

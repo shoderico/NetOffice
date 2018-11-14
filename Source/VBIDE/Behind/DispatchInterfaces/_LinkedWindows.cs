@@ -12,13 +12,27 @@ namespace NetOffice.VBIDEApi.Behind
     /// DispatchInterface _LinkedWindows
     /// SupportByVersion VBIDE, 12,14,5.3
     /// </summary>
-    [SupportByVersion("VBIDE", 12, 14, 5.3)]
-    [EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Method, "Item")]
     public class _LinkedWindows : COMObject, NetOffice.VBIDEApi._LinkedWindows
     {
         #pragma warning disable
 
         #region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.VBIDEApi._LinkedWindows);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

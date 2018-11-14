@@ -12,13 +12,27 @@ namespace NetOffice.OfficeApi.Behind
     /// DispatchInterface _CustomXMLSchemaCollection 
     /// SupportByVersion Office, 12,14,15,16
     /// </summary>
-    [SupportByVersion("Office", 12, 14, 15, 16)]
-    [EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Property, "Item")]
     public class _CustomXMLSchemaCollection : NetOffice.OfficeApi.Behind._IMsoDispObj, NetOffice.OfficeApi._CustomXMLSchemaCollection
     {
         #pragma warning disable
 
         #region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.OfficeApi._CustomXMLSchemaCollection);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

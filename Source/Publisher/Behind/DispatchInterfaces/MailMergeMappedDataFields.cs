@@ -12,13 +12,28 @@ namespace NetOffice.PublisherApi.Behind
 	/// <summary>
 	/// DispatchInterface MailMergeMappedDataFields 
 	/// SupportByVersion Publisher, 14,15,16
-	/// </summary>	[SupportByVersion("Publisher", 14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Custom), HasIndexProperty(IndexInvoke.Method, "Item")]
+	/// </summary>
 	public class MailMergeMappedDataFields : COMObject, NetOffice.PublisherApi.MailMergeMappedDataFields
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.PublisherApi.MailMergeMappedDataFields);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

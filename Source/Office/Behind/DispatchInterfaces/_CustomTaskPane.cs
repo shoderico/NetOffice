@@ -7,7 +7,7 @@ using NetOffice.OfficeApi;
 namespace NetOffice.OfficeApi.Behind
 {
     /// <summary>
-    /// DispatchInterface _CustomTaskPane 
+    /// DispatchInterface _CustomTaskPane
     /// SupportByVersion Office, 12,14,15,16
     /// </summary>
     [SupportByVersion("Office", 12, 14, 15, 16)]
@@ -17,6 +17,22 @@ namespace NetOffice.OfficeApi.Behind
         #pragma warning disable
 
         #region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.OfficeApi._CustomTaskPane);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type
@@ -55,7 +71,18 @@ namespace NetOffice.OfficeApi.Behind
 
 		}
 
-		#endregion
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Occurs after Delete for the proxy has been called
+        /// </summary>
+        /// <remarks>The event occurs for the proxy instance only.</remarks>
+        [CustomEvent]
+        public event _CustomTaskPaneDeleteHandler AfterDelete;
+
+        #endregion
 
         #region Properties
 
@@ -220,6 +247,9 @@ namespace NetOffice.OfficeApi.Behind
         public virtual void Delete()
         {
             InvokerService.InvokeInternal.ExecuteMethod(this, "Delete");
+            var handler = AfterDelete;
+            if (null != handler)
+                handler(this);
         }
 
         #endregion

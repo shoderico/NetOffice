@@ -6,7 +6,14 @@ using NetOffice.Attributes;
 namespace NetOffice.OfficeApi
 {
     /// <summary>
-    /// DispatchInterface _CustomTaskPane 
+    /// _CustomTaskPane AfterDelete Event Handler
+    /// AfterDelete is a custom event from NetOffice
+    /// </summary>
+    /// <param name="sender">deleted pane</param>
+    public delegate void _CustomTaskPaneDeleteHandler(_CustomTaskPane sender);
+
+    /// <summary>
+    /// DispatchInterface _CustomTaskPane
     /// SupportByVersion Office, 12,14,15,16
     /// </summary>
     [SupportByVersion("Office", 12, 14, 15, 16)]
@@ -15,6 +22,18 @@ namespace NetOffice.OfficeApi
     [CoClassSource(typeof(NetOffice.OfficeApi.CustomTaskPane))]
     public interface _CustomTaskPane : ICOMObject
     {
+        #region Events
+
+        /// <summary>
+        /// Occurs after Delete for the proxy has been called.
+        /// This is a custom event from NetOffice.
+        /// </summary>
+        /// <remarks>The event occurs for the proxy instance only.</remarks>
+        [CustomEvent]
+        event _CustomTaskPaneDeleteHandler AfterDelete;
+
+        #endregion
+
         #region Properties
 
         /// <summary>

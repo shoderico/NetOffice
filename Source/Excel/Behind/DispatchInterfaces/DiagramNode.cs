@@ -10,14 +10,27 @@ namespace NetOffice.ExcelApi.Behind
 	/// DispatchInterface DiagramNode 
 	/// SupportByVersion Excel, 10,11,12,14,15,16
 	/// </summary>
-	[SupportByVersion("Excel", 10,11,12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface)]
-    [Duplicate("NetOffice.OfficeApi.DiagramNode")]
     public class DiagramNode : NetOffice.OfficeApi.Behind._IMsoDispObj, NetOffice.ExcelApi.DiagramNode
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ExcelApi.DiagramNode);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

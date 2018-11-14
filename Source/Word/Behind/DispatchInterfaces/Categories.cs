@@ -12,14 +12,29 @@ namespace NetOffice.WordApi.Behind
 	/// <summary>
 	/// DispatchInterface Categories 
 	/// SupportByVersion Word, 12,14,15,16
-	/// </summary>	/// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff840595.aspx </remarks>
-	[SupportByVersion("Word", 12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Custom), HasIndexProperty(IndexInvoke.Method, "Item")]
+	/// </summary>
+    /// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff840595.aspx </remarks>
 	public class Categories : COMObject, NetOffice.WordApi.Categories
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.WordApi.Categories);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

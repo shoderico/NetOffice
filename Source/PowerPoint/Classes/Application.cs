@@ -42,7 +42,7 @@ namespace NetOffice.PowerPointApi
     public delegate void Application_PresentationCloseFinalEventHandler(NetOffice.PowerPointApi.Presentation pres);
     public delegate void Application_AfterDragDropOnSlideEventHandler(NetOffice.PowerPointApi.Slide sld, Single x, Single yY);
     public delegate void Application_AfterShapeSizeChangeEventHandler(NetOffice.PowerPointApi.Shape shp);
-#pragma warning restore
+    #pragma warning restore
 
     #endregion
 
@@ -57,13 +57,15 @@ namespace NetOffice.PowerPointApi
     [InteropCompatibilityClass]
     public class ApplicationClass : NetOffice.PowerPointApi.Behind.Application
     {
+        private string _defaultProgId = "PowerPoint.Application";
+
         /// <summary>
         /// Creates a new instance of Microsoft PowerPoint
         /// </summary>
         public ApplicationClass()
         {
             ICOMObjectInitialize init = (ICOMObjectInitialize)this;
-            init.InitializeCOMObject("PowerPoint.Application");
+            init.InitializeCOMObject(_defaultProgId);
         }
 
         /// <summary>
@@ -89,6 +91,19 @@ namespace NetOffice.PowerPointApi
         {
 
         }
+
+        /// <summary>
+        /// Creates a new instance of Microsoft PowerPoint
+        /// </summary>
+        /// <param name="mode">indicates where is the call coming from</param>
+        public ApplicationClass(NetOffice.Callers.InteropCompatibilityClassCreateMode mode)
+        {
+            if (mode == NetOffice.Callers.InteropCompatibilityClassCreateMode.Direct)
+            {
+                ICOMObjectInitialize init = (ICOMObjectInitialize)this;
+                init.InitializeCOMObject(_defaultProgId);
+            }
+        }
     }
 
     /// <summary>
@@ -100,7 +115,7 @@ namespace NetOffice.PowerPointApi
     [EntityType(EntityType.IsCoClass), ComProgId("PowerPoint.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(EventContracts.EApplication))]
 	[TypeId("91493441-5A91-11CF-8700-00AA0060263B")]
-    public interface Application : _Application, ICloneable<Application>, IEventBinding, IAutomaticQuit, ICOMObjectProxyService
+    public interface Application : _Application, ICloneable<Application>, IEventBinding, ICOMObjectProxyService
     {
         #region Events
 

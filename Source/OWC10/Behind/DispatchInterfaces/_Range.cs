@@ -253,13 +253,27 @@ namespace NetOffice.OWC10Api.Behind
     /// DispatchInterface _Range 
     /// SupportByVersion OWC10, 1
     /// </summary>
-    [SupportByVersion("OWC10", 1)]
-    [EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Property, "_Default")]
     public class _Range : _Range_, NetOffice.OWC10Api._Range
     {
         #pragma warning disable
 
         #region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.OWC10Api._Range);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

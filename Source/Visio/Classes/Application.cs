@@ -130,13 +130,15 @@ namespace NetOffice.VisioApi
     [InteropCompatibilityClass]
     public class ApplicationClass : NetOffice.VisioApi.Behind.Application
     {
+        private string _defaultProgId = "Visio.Application";
+
         /// <summary>
         /// Creates a new instance of Microsoft Visio
         /// </summary>
         public ApplicationClass()
         {
             ICOMObjectInitialize init = (ICOMObjectInitialize)this;
-            init.InitializeCOMObject("Visio.Application");
+            init.InitializeCOMObject(_defaultProgId);
         }
 
         /// <summary>
@@ -162,6 +164,19 @@ namespace NetOffice.VisioApi
         {
 
         }
+
+        /// <summary>
+        /// Creates a new instance of Microsoft Visio
+        /// </summary>
+        /// <param name="mode">indicates where is the call coming from</param>
+        public ApplicationClass(NetOffice.Callers.InteropCompatibilityClassCreateMode mode)
+        {
+            if (mode == NetOffice.Callers.InteropCompatibilityClassCreateMode.Direct)
+            {
+                ICOMObjectInitialize init = (ICOMObjectInitialize)this;
+                init.InitializeCOMObject(_defaultProgId);
+            }
+        }
     }
 
     /// <summary>
@@ -173,7 +188,7 @@ namespace NetOffice.VisioApi
 	[EntityType(EntityType.IsCoClass), ComProgId("Visio.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(NetOffice.VisioApi.EventContracts.EApplication))]
 	[TypeId("00021A20-0000-0000-C000-000000000046")]
-    public interface Application : IVApplication, ICloneable<Application>, IEventBinding, IAutomaticQuit, ICOMObjectProxyService
+    public interface Application : IVApplication, ICloneable<Application>, IEventBinding, ICOMObjectProxyService
 	{
 		#region Events
 

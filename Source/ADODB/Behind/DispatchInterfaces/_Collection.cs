@@ -12,14 +12,28 @@ namespace NetOffice.ADODBApi.Behind
 	/// <summary>
 	/// DispatchInterface _Collection 
 	/// SupportByVersion ADODB, 2.1,2.5
-	/// </summary>
-	[SupportByVersion("ADODB", 2.1,2.5)]
-	[EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Method)]
+	/// </summary>	
 	public class _Collection : COMObject, NetOffice.ADODBApi._Collection
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ADODBApi._Collection);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

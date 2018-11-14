@@ -13,13 +13,27 @@ namespace NetOffice.AccessApi.Behind
 	/// DispatchInterface _ItemsSelected 
 	/// SupportByVersion Access, 9,10,11,12,14,15,16
 	/// </summary>
-	[SupportByVersion("Access", 9,10,11,12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Value, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Property, "Item")]
 	public class _ItemsSelected : COMObject, NetOffice.AccessApi._ItemsSelected
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.AccessApi._ItemsSelected);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

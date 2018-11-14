@@ -12,14 +12,29 @@ namespace NetOffice.ExcelApi.Behind
 	/// <summary>
 	/// DispatchInterface PivotItemList 
 	/// SupportByVersion Excel, 10,11,12,14,15,16
-	/// </summary>	/// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff195748.aspx </remarks>
-	[SupportByVersion("Excel", 10,11,12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Property, "_Default")]
+	/// </summary>
+    /// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff195748.aspx </remarks>
 	public class PivotItemList : COMObject, NetOffice.ExcelApi.PivotItemList
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ExcelApi.PivotItemList);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type
@@ -154,7 +169,7 @@ namespace NetOffice.ExcelApi.Behind
 
         #endregion
 
-        #region IEnumerable<NetOffice.ExcelApi.PivotItem> Member
+        #region IEnumerable<NetOffice.ExcelApi.PivotItem>
 
         /// <summary>
         /// SupportByVersion Excel, 10,11,12,14,15,16
@@ -169,7 +184,7 @@ namespace NetOffice.ExcelApi.Behind
 
         #endregion
 
-        #region IEnumerable Members
+        #region IEnumerable
 
         /// <summary>
         /// SupportByVersion Excel, 10,11,12,14,15,16

@@ -15,7 +15,7 @@ namespace NetOffice.VisioApi.Behind
 	[EntityType(EntityType.IsCoClass), ComProgId("Visio.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(NetOffice.VisioApi.EventContracts.EApplication))]
     [HasInteropCompatibilityClass(typeof(ApplicationClass))]
-    public class Application : IVApplication, NetOffice.VisioApi.Application
+    public class Application : IVApplication, NetOffice.VisioApi.Application, IAutomaticQuit
     {
 		#pragma warning disable
 
@@ -29,6 +29,22 @@ namespace NetOffice.VisioApi.Behind
 		#endregion
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.VisioApi.Application);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type
@@ -75,20 +91,18 @@ namespace NetOffice.VisioApi.Behind
         /// </summary>
         public Application(Core factory = null, bool tryProxyServiceFirst = false) : base()
         {
+            object proxy = null;
             if (tryProxyServiceFirst)
             {
-                object proxy = ProxyService.GetActiveInstance("Visio", "Application", false);
+                proxy = ProxyService.GetActiveInstance("Visio", "Application", false);
                 if (null != proxy)
                 {
                     CreateFromProxy(proxy, true);
                     FromProxyService = true;
                 }
-                else
-                {
-                    CreateFromProgId("Visio.Application", true);
-                }
             }
-            else
+
+            if(null == proxy)
             {
                 CreateFromProgId("Visio.Application", true);
             }
@@ -102,7 +116,7 @@ namespace NetOffice.VisioApi.Behind
 
         #endregion
 
-        #region Properties
+        #region ICOMObjectProxyService
 
         /// <summary>
         /// Instance is created from an already running application
@@ -2751,7 +2765,7 @@ namespace NetOffice.VisioApi.Behind
         /// </summary>
         /// <returns>A new Application that is a copy of this instance</returns>
         /// <exception cref="CloneException">An unexpected error occured. See inner exception(s) for details.</exception>
-        public new virtual NetOffice.VisioApi.Application Clone()
+        public new virtual NetOffice.VisioApi.Application DeepCopy()
         {
             return base.Clone() as NetOffice.VisioApi.Application;
         }

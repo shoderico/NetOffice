@@ -5,14 +5,13 @@ using NetOffice.Attributes;
 
 namespace NetOffice.OfficeApi.Native
 {
-    #pragma warning disable
     /// <summary>
     /// NativeInterface IRibbonExtensibility SupportByVersion Office, 12,14,15,16
     /// The interface through which the Ribbon user interface (UI) communicates with a COM add-in to customize the UI.
     /// </summary>
     [SupportByVersion("Office", 12,14,15,16)]
 	[ComImport, ComVisible(true), Guid("000C0396-0000-0000-C000-000000000046"), TypeLibType((short) 4160)]
-	[EntityType(EntityType.IsNativeInterface)]
+    [EntityType(EntityType.IsNativeInterface)]
 	public interface IRibbonExtensibility
 	{
         #region Methods
@@ -30,5 +29,4 @@ namespace NetOffice.OfficeApi.Native
 
 		#endregion
 	}
-    #pragma warning restore
 }

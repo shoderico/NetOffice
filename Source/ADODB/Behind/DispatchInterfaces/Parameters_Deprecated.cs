@@ -12,13 +12,28 @@ namespace NetOffice.ADODBApi.Behind
 	/// <summary>
 	/// DispatchInterface Parameters_Deprecated 
 	/// SupportByVersion ADODB, 2.5
-	/// </summary>	[SupportByVersion("ADODB", 2.5)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Property, "Item")]
-	public class Parameters_Deprecated : _DynaCollection, NetOffice.ADODBApi.Parameters_Deprecated
+	/// </summary>	
+ 	public class Parameters_Deprecated : _DynaCollection, NetOffice.ADODBApi.Parameters_Deprecated
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ADODBApi.Parameters_Deprecated);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

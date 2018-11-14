@@ -5,10 +5,10 @@ using NetOffice.Attributes;
 
 namespace NetOffice.OfficeApi.Native
 {
-    #pragma warning disable
     /// <summary>
     /// NativeInterface IRibbonUI SupportByVersion Office, 12,14,15,16
-    /// The object that is returned by the onLoad procedure specified on the customUI tag. The object contains methods for invalidating control properties and for refreshing the user interface.
+    /// The object that is returned by the onLoad procedure specified on the customUI tag.
+    /// The object contains methods for invalidating control properties and for refreshing the user interface.
     /// </summary>
     [SupportByVersion("Office", 12,14,15,16)]
 	[ComImport, ComVisible(true), Guid("000C03A7-0000-0000-C000-000000000046"), TypeLibType((short) 4160)]
@@ -73,5 +73,4 @@ namespace NetOffice.OfficeApi.Native
 
 		#endregion
 	}
-    #pragma warning restore
 }

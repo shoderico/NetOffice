@@ -12,14 +12,28 @@ namespace NetOffice.ExcelApi.Behind
 	/// <summary>
 	/// DispatchInterface DiagramNodeChildren 
 	/// SupportByVersion Excel, 10,11,12,14,15,16
-	/// </summary>	[SupportByVersion("Excel", 10,11,12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Method, "Item")]
-    [Duplicate("NetOffice.OfficeApi.DiagramNodeChildren")]
+	/// </summary>
     public class DiagramNodeChildren : NetOffice.OfficeApi.Behind._IMsoDispObj, NetOffice.ExcelApi.DiagramNodeChildren
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ExcelApi.DiagramNodeChildren);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

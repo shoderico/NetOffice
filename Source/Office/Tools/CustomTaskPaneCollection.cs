@@ -1,18 +1,29 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using NetOffice;
+using NetOffice.Tools;
 using NetOffice.Attributes;
 using Office = NetOffice.OfficeApi;
 using NetOffice.OfficeApi.Enums;
+using System.Diagnostics;
 
 namespace NetOffice.OfficeApi.Tools
-{    
+{
     /// <summary>
     /// Wrapper class for CustomTaskPane instance, also used as creation definition if its create before CTPFactoryAvailable is called from MS-Office host application. (Best use in .ctor for creation definition)
     /// </summary>
     public class TaskPaneInfo
     {
+        #region Fields
+
+        private CustomTaskPane_VisibleStateChangeEventHandler _visibleStateChange;
+        private CustomTaskPane_DockPositionStateChangeEventHandler _dockPositionStateChange;
+        private Action<TaskPaneInfo> _createAction;
+
+        #endregion
+
         #region Ctor
 
         /// <summary>
@@ -20,11 +31,13 @@ namespace NetOffice.OfficeApi.Tools
         /// </summary>
         /// <param name="type">Type information for the specified UserControl</param>
         /// <param name="title">title of the control</param>
-        internal TaskPaneInfo(Type type, string title)
+        /// <param name="createAtStartup">create pane while addin startup, otherwise on demand</param>
+        internal TaskPaneInfo(Type type, string title, bool createAtStartup)
         {
             ChangedProperties = new Dictionary<string, object>();
             Type = type;
             Title = title;
+            CreateAtStartup = createAtStartup;
         }
 
         #endregion
@@ -35,7 +48,7 @@ namespace NetOffice.OfficeApi.Tools
         /// Occurs when task visibility is changed
         /// </summary>
         public event CustomTaskPane_VisibleStateChangeEventHandler VisibleStateChange
-        { 
+        {
             add
             {
                 _visibleStateChange += value;
@@ -45,15 +58,15 @@ namespace NetOffice.OfficeApi.Tools
                 _visibleStateChange -= value;
             }
         }
-        private CustomTaskPane_VisibleStateChangeEventHandler _visibleStateChange;
 
         /// <summary>
         /// Raise the VisibleChanged event
         /// </summary>
         internal void RaiseVisibleChanged(Office._CustomTaskPane pane)
         {
-            if (null != _visibleStateChange)
-                _visibleStateChange(pane);
+            var handler = _visibleStateChange;
+            if (null != handler)
+                handler(pane);
         }
 
         /// <summary>
@@ -70,15 +83,15 @@ namespace NetOffice.OfficeApi.Tools
                 _dockPositionStateChange -= value;
             }
         }
-        private CustomTaskPane_DockPositionStateChangeEventHandler _dockPositionStateChange;
 
         /// <summary>
         /// Raise the DockPositionStateChange event
         /// </summary>
         internal void RaiseDockPositionStateChanged(Office._CustomTaskPane pane)
         {
-            if (null != _dockPositionStateChange)
-                _dockPositionStateChange(pane);
+            var handler = _visibleStateChange;
+            if (null != handler)
+                handler(pane);
         }
 
         #endregion
@@ -109,12 +122,17 @@ namespace NetOffice.OfficeApi.Tools
         public bool IsLoaded { get; set; }
 
         /// <summary>
+        /// Determines the pane should created while addin startup, otherwise on demand
+        /// </summary>
+        public bool CreateAtStartup { get; private set; }
+
+        /// <summary>
         /// SupportByVersion Office 12, 14, 15, 16
         /// Get/Set
         /// </summary>
         [SupportByVersion("Office", 12, 14, 15, 16)]
-        public bool Visible 
-        { 
+        public bool Visible
+        {
             get
             {
                 if (IsLoaded)
@@ -145,7 +163,7 @@ namespace NetOffice.OfficeApi.Tools
         /// </summary>
         [SupportByVersion("Office", 12, 14, 15, 16)]
         public int Width
-        { 
+        {
             get
             {
                 if (IsLoaded)
@@ -176,7 +194,7 @@ namespace NetOffice.OfficeApi.Tools
         /// </summary>
         [SupportByVersion("Office", 12, 14, 15, 16)]
         public int Height
-        { 
+        {
             get
             {
                 if (IsLoaded)
@@ -302,25 +320,52 @@ namespace NetOffice.OfficeApi.Tools
         public Type Type { get; internal set; }
 
 		/// <summary>
-        /// Additional Arguments for OnConnection. The UserControl must implement ITaskPane to use it
+        /// Additional arguments for OnConnection. The UserControl must implement ITaskPane to use it
         /// </summary>
 		public object[] Arguments{ get; set; }
+
+        /// <summary>
+        /// Custom Tag as any
+        /// </summary>
+        public object Tag { get; set; }
 
         #endregion
 
         #region Methods / Trigger
 
+        /// <summary>
+        /// Creates the pane in office application if necessary
+        /// </summary>
+        /// <returns>true if pane is newly created, otherwise false</returns>
+        public bool Create()
+        {
+            if (null == Pane && null != _createAction)
+            {
+                _createAction(this);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 		/// <summary>
 		/// Attach the event triggers
 		/// </summary>
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public void AssignEvents()
+        //[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        internal void AssignEvents()
         {
             if (null != Pane && !Pane.IsDisposed && System.Runtime.InteropServices.Marshal.IsComObject(Pane.UnderlyingObject))
             {
-                Pane.VisibleStateChangeEvent += new CustomTaskPane_VisibleStateChangeEventHandler(Pane_VisibleStateChangeEvent);
-                Pane.DockPositionStateChangeEvent += new CustomTaskPane_DockPositionStateChangeEventHandler(Pane_DockPositionStateChangeEvent);
+                Pane.VisibleStateChangeEvent += Pane_VisibleStateChangeEvent;
+                Pane.DockPositionStateChangeEvent += Pane_DockPositionStateChangeEvent;
             }
+        }
+
+        internal void SetCreateAction(Action<TaskPaneInfo> createAction)
+        {
+            _createAction = createAction;
         }
 
         private void Pane_DockPositionStateChangeEvent(_CustomTaskPane customTaskPaneInst)
@@ -345,7 +390,6 @@ namespace NetOffice.OfficeApi.Tools
             {
                 DebugConsole.Default.WriteException(exception);
             }
-            
         }
 
         #endregion
@@ -354,10 +398,9 @@ namespace NetOffice.OfficeApi.Tools
     /// <summary>
     /// TaskCollection for COMAddin
     /// </summary>
+    [DebuggerDisplay("{Count} Items")]
     public class CustomTaskPaneCollection : IEnumerable<TaskPaneInfo>
     {
-        private List<TaskPaneInfo> InnerList { get; set; }
-
         /// <summary>
         /// Creates an instance of the class
         /// </summary>
@@ -366,15 +409,18 @@ namespace NetOffice.OfficeApi.Tools
             InnerList = new List<TaskPaneInfo>();
         }
 
+        private List<TaskPaneInfo> InnerList { get; set; }
+
         /// <summary>
         /// Add a new child to the list
         /// </summary>
         /// <param name="taskPaneType">new child</param>
         /// <param name="title">title(caption) of the child</param>
+        /// <param name="paneCreation">create at startup, otherwise on demand</param>
 		/// <returns>new instance</returns>
-        public TaskPaneInfo Add(Type taskPaneType, string title)
+        public TaskPaneInfo Add(Type taskPaneType, string title, PaneCreation paneCreation)
         {
-			TaskPaneInfo item = new TaskPaneInfo(taskPaneType, title);
+			TaskPaneInfo item = new TaskPaneInfo(taskPaneType, title, paneCreation == PaneCreation.AutomaticallyAtStartup);
             InnerList.Add(item);
 			return item;
         }
@@ -417,6 +463,19 @@ namespace NetOffice.OfficeApi.Tools
         }
 
         /// <summary>
+        /// Returns first element with specified title or null(Nothing in Visual Basic)
+        /// </summary>
+        /// <param name="title">specified title</param>
+        /// <returns>TaskPaneInfo instance</returns>
+        public TaskPaneInfo this[string title]
+        {
+            get
+            {
+                return InnerList.FirstOrDefault(e => e.Title == title);
+            }
+        }
+
+        /// <summary>
         /// Returns an Enumerator
         /// </summary>
         /// <returns>IEnumerator instance</returns>
@@ -432,6 +491,13 @@ namespace NetOffice.OfficeApi.Tools
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return InnerList.GetEnumerator();
+        }
+
+        internal void TaskPaneDeleted(_CustomTaskPane pane)
+        {
+            var target = this.FirstOrDefault(e => e.Pane == pane);
+            if(null != target)
+                Remove(target);
         }
     }
 }

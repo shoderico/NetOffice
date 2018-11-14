@@ -16,13 +16,12 @@ namespace NetOffice.VisioApi.Tools
     /// <summary>
     /// NetOffice MS-Visio COM Addin
     /// </summary>
-	[ComVisible(true), ClassInterface(ClassInterfaceType.AutoDual)]
     public abstract class COMAddin : COMAddinBase, ICOMAddin
     {
         #region Fields
 
         /// <summary>
-        /// MS-Visio Registry Path 
+        /// MS-Visio Registry Path
         /// </summary>
         private static readonly string _addinOfficeRegistryKey  = "Software\\Microsoft\\Office\\Visio\\Addins\\";
 
@@ -52,7 +51,7 @@ namespace NetOffice.VisioApi.Tools
         /// <summary>
         /// Host Application Instance
         /// </summary>
-        protected Visio.Application Application { get; private set; }
+        public Visio.Application Application { get; private set; }
 
         /// <summary>
         /// Custom addin object if created
@@ -92,12 +91,6 @@ namespace NetOffice.VisioApi.Tools
                 return _factory;
             }
         }
-
-        /// <summary>
-        /// Instance managed root com objects
-        /// </summary>
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public override IEnumerable Roots { get; protected set; }
 
         /// <summary>
         /// Returns an enumerable sequence with instance managed com objects on root level
@@ -186,24 +179,24 @@ namespace NetOffice.VisioApi.Tools
 
         #endregion
 
-        #region IDTExtensibility2 Events 
+        #region IDTExtensibility2 Events
 
         /// <summary>
-        /// The OnStartupComplete event occurs when the host application completes its startup routines, in the case where the COM add-in loads at startup. 
-        /// If the add-in is not loaded when the application loads, the OnStartupComplete event does not occur — 
+        /// The OnStartupComplete event occurs when the host application completes its startup routines, in the case where the COM add-in loads at startup.
+        /// If the add-in is not loaded when the application loads, the OnStartupComplete event does not occur —
         /// even when the user loads the add-in in the COM Add-ins dialog box. When this event does occur, it occurs after the OnConnection event.
-        /// You can use the OnStartupComplete  event procedure to run code that interacts with the application and that should not be run until the application has finished loading. 
-        /// For example, if you want to display a form that gives users a choice of documents to create when they start the application, 
+        /// You can use the OnStartupComplete  event procedure to run code that interacts with the application and that should not be run until the application has finished loading.
+        /// For example, if you want to display a form that gives users a choice of documents to create when they start the application,
         /// you can put that code in the OnStartupComplete event procedure.
         /// </summary>
         public event OnStartupCompleteEventHandler OnStartupComplete;
 
         /// <summary>
-        /// The Shutdown event occurs when the COM add-in is unloaded. 
+        /// The Shutdown event occurs when the COM add-in is unloaded.
         /// You can use the OnDisconnection event procedure to run code that restores any changes made to the application by the add-in and to perform general clean-up operations.
         /// An add-in can be unloaded in one of the following ways:
         /// - The user clears the check box next to the add-in in the COM Add-ins dialog box.
-        /// - The host application closes. If the add-in is loaded when the application closes, it is unloaded. 
+        /// - The host application closes. If the add-in is loaded when the application closes, it is unloaded.
         ///   If the add-in's load behavior is set to Startup, it is reloaded when the application starts again.
         /// - The Connect property of the corresponding COMAddIn object is set to False.
         /// </summary>
@@ -219,95 +212,124 @@ namespace NetOffice.VisioApi.Tools
         public event OnConnectionEventHandler OnConnection;
 
         /// <summary>
-        /// The OnAddInsUpdate event occurs when the set of loaded COM add-ins changes. 
-        /// When an add-in is loaded or unloaded, the OnAddInsUpdate event occurs in any other loaded add-ins. 
-        /// For example, if add-ins A and B both are loaded currently, and then add-in C is loaded, 
-        /// the OnAddInsUpdate event occurs in add-ins A and B. If C is unloaded, the OnAddInsUpdate event occurs again in add-ins A and B. 
+        /// The OnAddInsUpdate event occurs when the set of loaded COM add-ins changes.
+        /// When an add-in is loaded or unloaded, the OnAddInsUpdate event occurs in any other loaded add-ins.
+        /// For example, if add-ins A and B both are loaded currently, and then add-in C is loaded,
+        /// the OnAddInsUpdate event occurs in add-ins A and B. If C is unloaded, the OnAddInsUpdate event occurs again in add-ins A and B.
         /// </summary>
         public event OnAddInsUpdateEventHandler OnAddInsUpdate;
 
         /// <summary>
-        /// The OnBeginShutdown event occurs when the host application begins its shutdown routines, 
-        /// in the case where the application closes while the COM add-in is still loaded. 
-        /// If the add-in is not loaded when the application closes, 
+        /// The OnBeginShutdown event occurs when the host application begins its shutdown routines,
+        /// in the case where the application closes while the COM add-in is still loaded.
+        /// If the add-in is not loaded when the application closes,
         /// the OnBeginShutdown event does not occur. When this event does occur, it occurs before the OnDisconnection event.
         /// You can use the OnBeginShutdown event procedure to run code when the user closes the application. For example, you can run code that saves form data to a file.
         /// </summary>
         public event OnBeginShutdownEventHandler OnBeginShutdown;
 
-        private void RaiseOnStartupComplete(ref Array custom)
+        /// <summary>
+        /// Raise the OnStartupComplete event
+        /// </summary>
+        /// <param name="custom">custom arguments</param>
+        protected internal virtual void RaiseOnStartupComplete(ref Array custom)
         {
             try
             {
-                if (null != OnStartupComplete)
-                    OnStartupComplete(ref custom);
+                var handler = OnStartupComplete;
+                if (null != handler)
+                    handler(ref custom);
             }
             catch (NetRuntimeSystem.Exception exception)
             {
-				NetOffice.DebugConsole.Default.WriteException(exception);
+				Factory.Console.WriteException(exception);
                 OnError(ErrorMethodKind.OnStartupComplete, exception);
             }
         }
 
-        private void RaiseOnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom)
+        /// <summary>
+        /// Raise the OnDisconnection event
+        /// </summary>
+        /// <param name="RemoveMode">kind of remove</param>
+        /// <param name="custom">custom arguments</param>
+        protected internal virtual void RaiseOnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom)
         {
             try
             {
-                if (null != OnDisconnection)
-                    OnDisconnection(RemoveMode, ref custom);
+                var handler = OnDisconnection;
+                if (null != handler)
+                    handler(RemoveMode, ref custom);
             }
             catch (NetRuntimeSystem.Exception exception)
             {
-				NetOffice.DebugConsole.Default.WriteException(exception);
+				Factory.Console.WriteException(exception);
                 OnError(ErrorMethodKind.OnDisconnection, exception);
             }
         }
 
-        private void RaiseOnConnection(object Application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom)
+        /// <summary>
+        /// Raise the OnConnection event
+        /// </summary>
+        /// <param name="Application">application host instance</param>
+        /// <param name="ConnectMode">kind of connect</param>
+        /// <param name="AddInInst">addin instance</param>
+        /// <param name="custom">custom arguments</param>
+        protected internal virtual void RaiseOnConnection(object Application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom)
         {
             try
             {
-                if (null != OnConnection)
-                    OnConnection(Application, ConnectMode, AddInInst, ref custom);
+                var handler = OnConnection;
+                if (null != handler)
+                    handler(Application, ConnectMode, AddInInst, ref custom);
             }
             catch (NetRuntimeSystem.Exception exception)
             {
-				NetOffice.DebugConsole.Default.WriteException(exception);
+				Factory.Console.WriteException(exception);
                 OnError(ErrorMethodKind.OnConnection, exception);
             }
         }
 
-        private void RaiseOnAddInsUpdate(ref Array custom)
+        /// <summary>
+        /// Raise the OnAddInsUpdate event
+        /// </summary>
+        /// <param name="custom">custom arguments</param>
+        protected internal virtual void RaiseOnAddInsUpdate(ref Array custom)
         {
             try
             {
-                if (null != OnAddInsUpdate)
-                    OnAddInsUpdate(ref custom);
+                var handler = OnAddInsUpdate;
+                if (null != handler)
+                    handler(ref custom);
             }
             catch (NetRuntimeSystem.Exception exception)
             {
-				NetOffice.DebugConsole.Default.WriteException(exception);
+				Factory.Console.WriteException(exception);
                 OnError(ErrorMethodKind.OnAddInsUpdate, exception);
             }
         }
 
-        private void RaiseOnBeginShutdown(ref Array custom)
+        /// <summary>
+        /// Raise the OnBeginShutdown event
+        /// </summary>
+        /// <param name="custom">custom arguments</param>
+        protected internal virtual void RaiseOnBeginShutdown(ref Array custom)
         {
             try
             {
-                if (null != OnBeginShutdown)
-                    OnBeginShutdown(ref custom);
+                var handler = OnBeginShutdown;
+                if (null != handler)
+                    handler(ref custom);
             }
             catch (NetRuntimeSystem.Exception exception)
             {
-				NetOffice.DebugConsole.Default.WriteException(exception);
+				Factory.Console.WriteException(exception);
                 OnError(ErrorMethodKind.OnBeginShutdown, exception);
             }
         }
 
         #endregion
 
-        #region IDTExtensibility2 Members
+        #region IDTExtensibility2
 
         void NetOffice.Tools.Native.IDTExtensibility2.OnStartupComplete(ref Array custom)
         {
@@ -324,17 +346,10 @@ namespace NetOffice.VisioApi.Tools
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="application"></param>
-        /// <param name="ConnectMode"></param>
-        /// <param name="AddInInst"></param>
-        /// <param name="custom"></param>
         void NetOffice.Tools.Native.IDTExtensibility2.OnConnection(object application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom)
         {
             try
-            {                
+            {
                 this.Application = Factory.CreateKnownObjectFromComProxy<Visio.Application>(null, application, typeof(Visio.Application));
                 TryCreateCustomObject(AddInInst);
                 RaiseOnConnection(this.Application, ConnectMode, AddInInst, ref custom);
@@ -356,7 +371,7 @@ namespace NetOffice.VisioApi.Tools
                 }
                 catch (NetRuntimeSystem.Exception exception)
                 {
-                    NetOffice.DebugConsole.Default.WriteException(exception);
+                    Factory.Console.WriteException(exception);
                 }
 
                 try
@@ -366,7 +381,16 @@ namespace NetOffice.VisioApi.Tools
                 }
                 catch (NetRuntimeSystem.Exception exception)
                 {
-                    NetOffice.DebugConsole.Default.WriteException(exception);
+                    Factory.Console.WriteException(exception);
+                }
+
+                try
+                {
+                    CleanUp();
+                }
+                catch (NetRuntimeSystem.Exception exception)
+                {
+                    Factory.Console.WriteException(exception);
                 }
             }
             catch (System.Exception exception)
@@ -404,8 +428,8 @@ namespace NetOffice.VisioApi.Tools
 
         #endregion
 
-        #region ErrorHandler 
-        
+        #region ErrorHandler
+
         /// <summary>
         /// Custom error handler
         /// </summary>
@@ -415,13 +439,13 @@ namespace NetOffice.VisioApi.Tools
         {
 
         }
-        
+
         #endregion
 
         #region COM Register Functions
 
         /// <summary>
-        /// Called from regasm while register 
+        /// Called from regasm while register
         /// </summary>
         /// <param name="type">Type information for the class</param>
         [ComRegisterFunctionAttribute, Browsable(false), EditorBrowsable( EditorBrowsableState.Never)]
@@ -491,7 +515,7 @@ namespace NetOffice.VisioApi.Tools
         }
 
         /// <summary>
-        /// Called from RegAddin while export registry informations 
+        /// Called from RegAddin while export registry informations
         /// </summary>
         /// <param name="type">Type information for the class</param>
         /// <param name="scope">NetOffice.Tools.InstallScope enum value</param>

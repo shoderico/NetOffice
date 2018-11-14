@@ -194,7 +194,10 @@ namespace NetOffice.Tools.Expose
                 if (!ContainsType(implementation))
                     throw new ArgumentException("Type is not managed by factory");
 
-                return (ICOMObject)Activator.CreateInstance(implementation);
+                if(implementation.HasCustomAttribute<InteropCompatibilityClassAttribute>())
+                    return (ICOMObject)Activator.CreateInstance(implementation, NetOffice.Callers.InteropCompatibilityClassCreateMode.FromActivator);
+                else
+                    return (ICOMObject)Activator.CreateInstance(implementation);
             }
             catch (Exception exception)
             {
@@ -217,42 +220,23 @@ namespace NetOffice.Tools.Expose
                 _factoryTypes = new Dictionary<Type, Type>();
                 var contracts = ExportedTypes.Where(e => e.IsInterface
                                 && e.Namespace == FactoryNamespace
-                                && null == e.GetCustomAttribute<SyntaxBypassAttribute>());
+                                && false == e.HasCustomAttribute<SyntaxBypassAttribute>());
                 foreach (var contract in contracts)
                 {
-                    var implementation = Assembly.GetType(contract.Namespace + ".Behind." + contract.Name, true);
-                    _factoryTypes.Add(contract, implementation);
+                    var attribute = contract.GetCustomAttribute<EntityTypeAttribute>();
+                    if (null != attribute && 
+                        (attribute.Type == EntityType.IsDispatchInterface ||
+                        attribute.Type == EntityType.IsCoClass ||
+                        attribute.Type == EntityType.IsInterface ||
+                        attribute.Type == EntityType.IsNativeInterfaceCaller
+                        ))
+                    {
+                        var implementation = Assembly.GetType(contract.Namespace + ".Behind." + contract.Name, true);
+                        _factoryTypes.Add(contract, implementation);
+                    }
                 }
             }
         }
-
-        ///// <summary>
-        ///// Analyze the contract type and redirect to its bypass type
-        ///// </summary>
-        ///// <param name="type">target contract</param>
-        ///// <returns>contract or redirected type</returns>
-        //private Type ValidateContractType(Type type)
-        //{
-        //    //CoClassSourceAttribute coClassAttribute = type.GetCustomAttribute<CoClassSourceAttribute>();
-        //    //if (null != coClassAttribute)
-        //    //    type = coClassAttribute.Value;
-
-        //    return type;
-        //}
-
-        ///// <summary>
-        ///// Analyze the conimplementation type and redirect to its bypass type
-        ///// </summary>
-        ///// <param name="type">target implementation</param>
-        ///// <returns>contract or redirected type</returns>
-        //private Type ValidateImplementationType(Type type)
-        //{
-        //    //HasInteropCompatibilityClassAttribute interopAttribute = type.GetCustomAttribute<HasInteropCompatibilityClassAttribute>();
-        //    //if (null != interopAttribute)
-        //    //    type = interopAttribute.Value;
-
-        //    return type;
-        //}
 
         #endregion
     }

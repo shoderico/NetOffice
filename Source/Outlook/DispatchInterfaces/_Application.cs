@@ -14,7 +14,7 @@ namespace NetOffice.OutlookApi
 	[EntityType(EntityType.IsDispatchInterface), BaseType]
 	[TypeId("00063001-0000-0000-C000-000000000046")]
     [CoClassSource(typeof(NetOffice.OutlookApi.Application))]
-    public interface _Application : ICOMObject, IApplicationVersionProvider
+    public interface _Application : ICOMObject
 	{
 		#region Properties
 
@@ -66,7 +66,7 @@ namespace NetOffice.OutlookApi
 		/// </summary>
 		/// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff868248.aspx </remarks>
 		[SupportByVersion("Outlook", 9,10,11,12,14,15,16)]
-		new string Name { get; }
+		string Name { get; }
 
 		/// <summary>
 		/// SupportByVersion Outlook 9, 10, 11, 12, 14, 15, 16
@@ -74,7 +74,7 @@ namespace NetOffice.OutlookApi
 		/// </summary>
 		/// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff860684.aspx </remarks>
 		[SupportByVersion("Outlook", 9,10,11,12,14,15,16)]
-		new string Version { get; }
+		string Version { get; }
 
 		/// <summary>
 		/// SupportByVersion Outlook 9, 10, 11, 12, 14, 15, 16

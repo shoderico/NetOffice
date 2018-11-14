@@ -13,13 +13,27 @@ namespace NetOffice.PublisherApi.Behind
 	/// DispatchInterface MailMergeFilters 
 	/// SupportByVersion Publisher, 14,15,16
 	/// </summary>
-	[SupportByVersion("Publisher", 14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Variant, EnumeratorInvoke.Custom), HasIndexProperty(IndexInvoke.Method, "Item")]
 	public class MailMergeFilters : NetOffice.OfficeApi.Behind._IMsoDispObj, NetOffice.PublisherApi.MailMergeFilters
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.PublisherApi.MailMergeFilters);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

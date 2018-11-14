@@ -15,7 +15,7 @@ namespace NetOffice.MSProjectApi.Behind
 	[EntityType(EntityType.IsCoClass), ComProgId("MSProject.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(NetOffice.MSProjectApi.EventContracts._EProjectApp2))]
     [HasInteropCompatibilityClass(typeof(ApplicationClass))]
-    public class Application : _MSProject, NetOffice.MSProjectApi.Application
+    public class Application : _MSProject, NetOffice.MSProjectApi.Application, IAutomaticQuit
     {
 		#pragma warning disable
 
@@ -29,6 +29,22 @@ namespace NetOffice.MSProjectApi.Behind
 		#endregion
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.MSProjectApi.Application);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type
@@ -74,20 +90,18 @@ namespace NetOffice.MSProjectApi.Behind
         /// </summary>
         public Application(Core factory = null, bool enableProxyService = false) : base()
         {
+            object proxy = null;
             if (enableProxyService)
             {
-                object proxy = ProxyService.GetActiveInstance("MSProject", "Application", false);
+                proxy = ProxyService.GetActiveInstance("MSProject", "Application", false);
                 if (null != proxy)
                 {
                     CreateFromProxy(proxy, true);
                     FromProxyService = true;
                 }
-                else
-                {
-                    CreateFromProgId("MSProject.Application", true);
-                }
             }
-            else
+
+            if(null == proxy)
             {
                 CreateFromProgId("MSProject.Application", true);
             }
@@ -100,7 +114,7 @@ namespace NetOffice.MSProjectApi.Behind
 
         #endregion
 
-        #region Properties
+        #region ICOMObjectProxyService
 
         /// <summary>
         /// Instance is created from an already running application
@@ -1552,7 +1566,7 @@ namespace NetOffice.MSProjectApi.Behind
         /// </summary>
         /// <returns>A new Application that is a copy of this instance</returns>
         /// <exception cref="CloneException">An unexpected error occured. See inner exception(s) for details.</exception>
-        public new virtual NetOffice.MSProjectApi.Application Clone()
+        public new virtual NetOffice.MSProjectApi.Application DeepCopy()
         {
             return base.Clone() as NetOffice.MSProjectApi.Application;
         }

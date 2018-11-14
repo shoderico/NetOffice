@@ -12,13 +12,28 @@ namespace NetOffice.ExcelApi.Behind
 	/// <summary>
 	/// Interface IPoints 
 	/// SupportByVersion Excel, 9,10,11,12,14,15,16
-	/// </summary>	[SupportByVersion("Excel", 9,10,11,12,14,15,16)]
-	[EntityType(EntityType.IsInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Method, "_Default")]
+	/// </summary>
 	public class IPoints : COMObject, NetOffice.ExcelApi.IPoints
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ExcelApi.IPoints);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type        /// </summary>
@@ -39,7 +54,8 @@ namespace NetOffice.ExcelApi.Behind
             get
             {
                 if (null == _type)
-                    _type = typeof(IPoints);                return _type;
+                    _type = typeof(IPoints);
+                return _type;
             }
         }
         

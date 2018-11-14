@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--PLEASE NOTE: The CustomUI_OnLoad method is a virtual member of the COMAddin base class -->
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="CustomUI_OnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="InnerAddin" label="InnerAddin">
+        <group id="group1" label="InnerAddin">
+           <button id="SampleButton1" label="SampleButton1" imageMso="AdvertisePublishAs" size="large" onAction="SampleButton1_Click" />
+          <button id="SampleButton2" label="SampleButton2" imageMso="AdvertisePublishAs" size="large" onAction="SampleButton2_Click" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

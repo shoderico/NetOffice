@@ -12,13 +12,28 @@ namespace NetOffice.PublisherApi.Behind
 	/// <summary>
 	/// DispatchInterface MailMergeDataSources 
 	/// SupportByVersion Publisher, 14,15,16
-	/// </summary>	[SupportByVersion("Publisher", 14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Custom), HasIndexProperty(IndexInvoke.Method, "Item")]
+	/// </summary>
 	public class MailMergeDataSources : NetOffice.OfficeApi.Behind._IMsoDispObj, NetOffice.PublisherApi.MailMergeDataSources
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.PublisherApi.MailMergeDataSources);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type
@@ -124,7 +139,7 @@ namespace NetOffice.PublisherApi.Behind
 
         #endregion
 
-        #region IEnumerable<NetOffice.PublisherApi.MailMergeDataSource> Member
+        #region IEnumerable<NetOffice.PublisherApi.MailMergeDataSource>
 
         /// <summary>
         /// SupportByVersion Publisher, 14,15,16
@@ -141,7 +156,7 @@ namespace NetOffice.PublisherApi.Behind
 
         #endregion
 
-        #region IEnumerable Members
+        #region IEnumerable
 
         /// <summary>
         /// SupportByVersion Publisher, 14,15,16

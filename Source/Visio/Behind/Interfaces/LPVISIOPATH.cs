@@ -12,13 +12,28 @@ namespace NetOffice.VisioApi.Behind
 	/// <summary>
 	/// Interface LPVISIOPATH 
 	/// SupportByVersion Visio, 11,12,14,15,16
-	/// </summary>	[SupportByVersion("Visio", 11,12,14,15,16)]
-	[EntityType(EntityType.IsInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Property, "Item")]
+	/// </summary>
 	public class LPVISIOPATH : COMObject, NetOffice.VisioApi.LPVISIOPATH
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.VisioApi.LPVISIOPATH);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type
@@ -188,7 +203,7 @@ namespace NetOffice.VisioApi.Behind
 
         #endregion
 
-        #region IEnumerable<NetOffice.VisioApi.IVCurve> Member
+        #region IEnumerable<NetOffice.VisioApi.IVCurve>
 
         /// <summary>
         /// SupportByVersion Visio, 11,12,14,15,16
@@ -203,7 +218,7 @@ namespace NetOffice.VisioApi.Behind
 
         #endregion
 
-        #region IEnumerable Members
+        #region IEnumerable
 
         /// <summary>
         /// SupportByVersion Visio, 11,12,14,15,16

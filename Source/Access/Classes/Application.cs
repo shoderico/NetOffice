@@ -17,13 +17,15 @@ namespace NetOffice.AccessApi
     [InteropCompatibilityClass]
     public class ApplicationClass : NetOffice.AccessApi.Behind.Application
     {
+        private string _defaultProgId = "Access.Application";
+
         /// <summary>
         /// Creates a new instance of Microsoft Access
         /// </summary>
         public ApplicationClass()
         {
             ICOMObjectInitialize init = (ICOMObjectInitialize)this;
-            init.InitializeCOMObject("Access.Application");
+            init.InitializeCOMObject(_defaultProgId);
         }
 
         /// <summary>
@@ -49,8 +51,20 @@ namespace NetOffice.AccessApi
         {
 
         }
-    }
 
+        /// <summary>
+        /// Creates a new instance of Microsoft Access
+        /// </summary>
+        /// <param name="mode">indicates where is the call coming from</param>
+        public ApplicationClass(NetOffice.Callers.InteropCompatibilityClassCreateMode mode)
+        {
+            if (mode == NetOffice.Callers.InteropCompatibilityClassCreateMode.Direct)
+            {
+                ICOMObjectInitialize init = (ICOMObjectInitialize)this;
+                init.InitializeCOMObject(_defaultProgId);
+            }
+        }
+    }
 
     /// <summary>
     /// CoClass Application
@@ -60,7 +74,7 @@ namespace NetOffice.AccessApi
     [SupportByVersion("Access", 9,10,11,12,14,15,16)]
 	[EntityType(EntityType.IsCoClass), ComProgId("Access.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
 	[TypeId("73A4C9C1-D68D-11D0-98BF-00A0C90DC8D9")]
-    public interface Application : _Application, ICloneable<Application>, IAutomaticQuit, IApplicationVersionProvider, ICOMObjectProxyService
+    public interface Application : _Application, ICloneable<Application>, ICOMObjectProxyService
 	{
 
 	}

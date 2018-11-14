@@ -12,13 +12,28 @@ namespace NetOffice.VisioApi.Behind
 	/// <summary>
 	/// DispatchInterface IVValidationRuleSets 
 	/// SupportByVersion Visio, 14,15,16
-	/// </summary>	[SupportByVersion("Visio", 14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Property, "Item")]
+	/// </summary>
 	public class IVValidationRuleSets : COMObject, NetOffice.VisioApi.IVValidationRuleSets
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.VisioApi.IVValidationRuleSets);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

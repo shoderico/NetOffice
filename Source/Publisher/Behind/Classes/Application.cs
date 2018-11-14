@@ -14,7 +14,7 @@ namespace NetOffice.PublisherApi.Behind
 	[EntityType(EntityType.IsCoClass), ComProgId("Publisher.Application"), ModuleProvider(typeof(NetOffice.PublisherApi.ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(NetOffice.PublisherApi.EventContracts.ApplicationEvents))]
     [HasInteropCompatibilityClass(typeof(ApplicationClass))]
-    public class Application : _Application, NetOffice.PublisherApi.Application
+    public class Application : _Application, NetOffice.PublisherApi.Application, IAutomaticQuit
     {
 		#pragma warning disable
 
@@ -28,6 +28,22 @@ namespace NetOffice.PublisherApi.Behind
 		#endregion
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.PublisherApi.Application);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type
@@ -73,20 +89,18 @@ namespace NetOffice.PublisherApi.Behind
         /// </summary>
         public Application(Core factory = null, bool enableProxyService = false) : base()
         {
+            object proxy = null;
             if (enableProxyService)
             {
-                object proxy = ProxyService.GetActiveInstance("Publisher", "Application", false);
+                proxy = ProxyService.GetActiveInstance("Publisher", "Application", false);
                 if (null != proxy)
                 {
                     CreateFromProxy(proxy, true);
                     FromProxyService = true;
                 }
-                else
-                {
-                    CreateFromProgId("Publisher.Application", true);
-                }
             }
-            else
+
+            if(null == proxy)
             {
                 CreateFromProgId("Publisher.Application", true);
             }
@@ -98,7 +112,7 @@ namespace NetOffice.PublisherApi.Behind
         }
 
         #endregion
-      
+
         #region Properties
 
         /// <summary>
@@ -841,7 +855,7 @@ namespace NetOffice.PublisherApi.Behind
         /// </summary>
         /// <returns>A new Application that is a copy of this instance</returns>
         /// <exception cref="CloneException">An unexpected error occured. See inner exception(s) for details.</exception>
-        public new virtual NetOffice.PublisherApi.Application Clone()
+        public new virtual NetOffice.PublisherApi.Application DeepCopy()
         {
             return base.Clone() as NetOffice.PublisherApi.Application;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
@@ -27,6 +28,11 @@ namespace NetOffice
         /// </summary>
         private static readonly string _createFromProgIdFailMessageHint = "This is typically because you have no access to the desktop subsystem " +
                                                                    "from a Windows Service/IIS modul in default configuration because its running in a restricted context/principal.";
+
+        /// <summary>
+        /// Factory exception message when Create is unable to find an implementation for given contract
+        /// </summary>
+        private static readonly string _missingImplementationHint = "Unable to locate a contract implementation.";
 
         /// <summary>
         /// the well know IUnknown Interface ID
@@ -109,9 +115,14 @@ namespace NetOffice
         private string _instanceName;
 
         /// <summary>
-        /// InstanceType chache field
+        /// Instance Type chache field (Default implementations override them for performance)
         /// </summary>
         private Type _instanceType;
+
+        /// <summary>
+        /// Contract Type cache field (Default implementations override them for performance)
+        /// </summary>
+        private Type _contractType = null;
 
         /// <summary>
         /// Initialized flag
@@ -317,7 +328,54 @@ namespace NetOffice
         #region Methods
 
         /// <summary>
-        /// Creates instance
+        /// Creates a new instance of T by trying to find a running instance first.
+        /// If its failed to find a running proxy, its create a new instance by given ProgId or using the registered default ProgId.
+        /// </summary>
+        /// <typeparam name="T">result type</typeparam>
+        /// <param name="options">optional create options</param>
+        /// <param name="progId">optional custom progid or null/nothing/empty to use registered progid of T</param>
+        /// <returns>new instance of T</returns>
+        /// <exception cref="CreateInstanceException">unexpected error</exception>
+        /// <exception cref="ArgumentException">T does not support ComProgIdAttribute and given progId is missing or invalid</exception>
+        public static T CreateByRunningInstance<T>(COMObjectCreateOptions options = COMObjectCreateOptions.None, string progId = null) where T : class, ICOMObject
+        {
+            T result = default(T);
+
+            Core factory = options == COMObjectCreateOptions.CreateNewCore ? new Core() : Core.Default;
+            string targetProgId = String.IsNullOrWhiteSpace(progId) ? progId : String.Empty;
+            if (String.IsNullOrWhiteSpace(targetProgId))
+            {
+                var attribute = AttributeExtensions.GetCustomAttribute<ComProgIdAttribute>(typeof(T), true);
+                if (null == attribute)
+                    throw new ArgumentException("The result type doesnt support ComProgIdAttribute and given ProgId is missing.");
+                targetProgId = attribute.Value;
+            }
+
+            if (ComProgIdAttribute.ValidNonVersionedSignature(targetProgId))
+                throw new ArgumentException("ProgId signature missmatch.");
+
+            try
+            {
+                object comProxy = ProxyService.GetActiveInstance(ComProgIdAttribute.Component(targetProgId), ComProgIdAttribute.Type(targetProgId), false);
+                if (null != comProxy)
+                {
+                    result = Create<T>(comProxy, options);
+                }
+                else
+                {
+                    result = CreateByProgId<T>(factory, targetProgId);
+                }
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                throw new CreateInstanceException(exception);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new instance of T by using the registered default ProgId.
         /// </summary>
         /// <typeparam name="T">result type</typeparam>
         /// <param name="options">optional create options</param>
@@ -392,7 +450,7 @@ namespace NetOffice
         }
 
         /// <summary>
-        /// Creates instance from proxy
+        /// Creates instance from proxy by using a given core
         /// </summary>
         /// <typeparam name="T">result type</typeparam>
         /// <param name="factory">affected netoffice core</param>
@@ -411,18 +469,8 @@ namespace NetOffice
                 throw new ArgumentException("comProxy");
             try
             {
-                Type contract = typeof(T);
-                Type implementation = CoreTypeExtensions.GetImplementationTypeForKnownObject(factory, contract);
-                T result = (T)Activator.CreateInstance(implementation);
-                ICOMObjectInitialize init = result as ICOMObjectInitialize;
-                if (null != init)
-                {
-                    init.InitializeCOMObject(factory, comProxy);
-                }
-
-                result = (T)factory.InternalObjectActivator.TryReplaceInstance(null, result);
-
-                return result;
+                factory.CheckInitialize();
+                return factory.CreateKnownObjectFromComProxy<T>(null, comProxy, typeof(T));
             }
             catch (Exception exception)
             {
@@ -430,45 +478,9 @@ namespace NetOffice
             }
         }
 
-        /// <summary>
-        /// Creates instance from proxy
-        /// </summary>
-        /// <typeparam name="T">result type</typeparam>
-        /// <param name="parent">parent caller</param>
-        /// <param name="comProxy">given proxy as any</param>
-        /// <returns>new instance of T</returns>
-        /// <exception cref="ArgumentNullException">argument is null(Nothing in Visual Basic)</exception>
-        /// <exception cref="ArgumentException">given comProxy is not a proxy</exception>
-        /// <exception cref="CreateInstanceException">unexpected error</exception>
-        public static T CreateFromParent<T>(ICOMObject parent, object comProxy) where T : class, ICOMObject
-        {
-            if (null == comProxy)
-                throw new ArgumentNullException("comProxy");
-            if (false == (comProxy is MarshalByRefObject))
-                throw new ArgumentException("comProxy");
-            try
-            {
-                Type contract = typeof(T);
-                Type implementation = CoreTypeExtensions.GetImplementationTypeForKnownObject(parent.Factory, contract);
-                T result = (T)Activator.CreateInstance(implementation);
-                ICOMObjectInitialize init = result as ICOMObjectInitialize;
-                if (null != init)
-                {
-                    init.InitializeCOMObject(parent.Factory, parent, comProxy);
-                }
-
-                result = (T)parent.Factory.InternalObjectActivator.TryReplaceInstance(null, result);
-
-                return result;
-            }
-            catch (Exception exception)
-            {
-                throw new CreateInstanceException(exception);
-            }
-        }
 
         /// <summary>
-        /// Creates instance with given factory
+        /// Creates a new instance of T by using the registered default ProgId.
         /// </summary>
         /// <typeparam name="T">result type</typeparam>
         /// <param name="factory">affected netoffice core</param>
@@ -485,6 +497,9 @@ namespace NetOffice
                 Type contract = typeof(T);
                 factory.CheckInitialize();
                 Type implementation = CoreTypeExtensions.GetImplementationTypeForKnownObject(factory, contract);
+                if (null == implementation)
+                    throw new FactoryException(_missingImplementationHint);
+
                 var progId = contract.GetCustomAttribute<ComProgIdAttribute>();
 
                 T result = (T)Activator.CreateInstance(implementation);
@@ -498,6 +513,75 @@ namespace NetOffice
                 result = (T)factory.InternalObjectActivator.TryReplaceInstance(null, result);
 
                 return result;
+            }
+            catch (Exception exception)
+            {
+                throw new CreateInstanceException(exception);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new instance of T by using the registered default ProgId.
+        /// </summary>
+        /// <typeparam name="T">result type</typeparam>
+        /// <param name="factory">affected netoffice core</param>
+        /// <param name="progId">progId as any</param>
+        /// <returns>new instance of T</returns>
+        /// <exception cref="ArgumentNullException">argument is null(Nothing in Visual Basic)</exception>
+        /// <exception cref="CreateInstanceException">unexpected error</exception>
+        public static T CreateByProgId<T>(Core factory, string progId) where T : class, ICOMObject
+        {
+            if (null == factory)
+                throw new ArgumentNullException("factory");
+            if (String.IsNullOrWhiteSpace(progId))
+                throw new ArgumentNullException("progId");
+            try
+            {
+                Type contract = typeof(T);
+                factory.CheckInitialize();
+                Type implementation = CoreTypeExtensions.GetImplementationTypeForKnownObject(factory, contract);
+                if (null == implementation)
+                    throw new FactoryException(_missingImplementationHint);
+
+                T result = (T)Activator.CreateInstance(implementation);
+
+                ICOMObjectInitialize init = result as ICOMObjectInitialize;
+                if (null != init)
+                {
+                    init.InitializeCOMObject(factory, progId);
+                }
+
+                result = (T)factory.InternalObjectActivator.TryReplaceInstance(null, result);
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                throw new CreateInstanceException(exception);
+            }
+        }
+
+        /// <summary>
+        /// Creates instance from a proxy and add the new instance to given parent in NetOffice Instance Management
+        /// </summary>
+        /// <typeparam name="T">result type</typeparam>
+        /// <param name="parent">parent caller</param>
+        /// <param name="comProxy">given proxy as any</param>
+        /// <returns>new instance of T</returns>
+        /// <exception cref="ArgumentNullException">argument is null(Nothing in Visual Basic)</exception>
+        /// <exception cref="ArgumentException">given comProxy is not a proxy</exception>
+        /// <exception cref="CreateInstanceException">unexpected error</exception>
+        public static T CreateFromParent<T>(ICOMObject parent, object comProxy) where T : class, ICOMObject
+        {
+            if (null == comProxy)
+                throw new ArgumentNullException("comProxy");
+            if (false == (comProxy is MarshalByRefObject))
+                throw new ArgumentException("comProxy");
+            try
+            {
+                Core factory = null != parent ? parent.Factory : Core.Default;
+                factory.CheckInitialize();
+                return factory.CreateKnownObjectFromComProxy<T>(parent, comProxy, typeof(T));
             }
             catch (Exception exception)
             {
@@ -532,7 +616,7 @@ namespace NetOffice
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected void CreateFromProgId(string progId, bool factoryAddObject = false)
         {
-            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::CreateFromProgId", PerformanceTrace.CallType.Method);
+            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::CreateFromProgId", PerformanceTrace.CallType.Method);
 
             _underlyingType = System.Type.GetTypeFromProgID(progId, false);
             if (null == _underlyingType)
@@ -544,7 +628,7 @@ namespace NetOffice
                 underlyingObject = Activator.CreateInstance(_underlyingType);
 
                 if (measureStarted)
-                    Settings.PerformanceTrace.StopMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::CreateFromProgId");
+                    Settings.PerformanceTrace.StopMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::CreateFromProgId");
             }
             catch (Exception exception)
             {
@@ -566,11 +650,11 @@ namespace NetOffice
             // release himself from COM Runtime System
             if (!_proxyShare.Released)
             {
-                bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::ReleaseCOMProxy", PerformanceTrace.CallType.Method);
+                bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::ReleaseCOMProxy", PerformanceTrace.CallType.Method);
                 _proxyShare.Release();
                 Factory.InternalObjectRegister.RemoveObjectFromList(this, ownerPath);
                 if (measureStarted)
-                    Settings.PerformanceTrace.StopMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::ReleaseCOMProxy");
+                    Settings.PerformanceTrace.StopMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::ReleaseCOMProxy");
             }
         }
 
@@ -737,7 +821,7 @@ namespace NetOffice
         }
 
         #endregion
-        
+
         #region ICOMObject
 
         /// <summary>
@@ -849,7 +933,7 @@ namespace NetOffice
                     throw new InvalidCastException("Unexpected Instance.");
 
                 init.InitializeCOMObject(Factory, ParentObject, UnderlyingObject);
-               
+
                 ICOMProxyShareProvider shareProvider = clone as ICOMProxyShareProvider;
                 if (null == shareProvider)
                     throw new InvalidCastException("Newly created instance does not implement the ICOMProxyShareProvider interface.");
@@ -907,60 +991,6 @@ namespace NetOffice
             }
         }
 
-        ///// <summary>
-        ///// NetOffice property: Full type name from UnderlyingObject
-        ///// </summary>
-        //[EditorBrowsable(EditorBrowsableState.Never), Browsable(false), Category("NetOffice")]
-        //public string UnderlyingTypeName
-        //{
-        //    get
-        //    {
-        //        if (null == _underlyingTypeName)
-        //            _underlyingTypeName = new UnderlyingTypeNameResolver().GetClassName(this);
-        //        return _underlyingTypeName;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// NetOffice property: Friendly type name from UnderlyingObject
-        ///// </summary>
-        //[Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced), Category("NetOffice")]
-        //public string UnderlyingFriendlyTypeName
-        //{
-        //    get
-        //    {
-        //        if (null == _friendlyTypeName)
-        //            _friendlyTypeName = new UnderlyingTypeNameResolver().GetFriendlyClassName(this, _underlyingTypeName);
-        //        return _friendlyTypeName;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// NetOffice property: Component name from UnderlyingObject
-        ///// </summary>
-        //[EditorBrowsable(EditorBrowsableState.Never), Browsable(false), Category("NetOffice")]
-        //public string UnderlyingComponentName
-        //{
-        //    get
-        //    {
-        //        if (null == _underlyingComponentName)
-        //            _underlyingComponentName = new UnderlyingTypeNameResolver().GetComponentName(this);
-        //        return _underlyingComponentName;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// NetOffice property: Full Name of the NetOffice Wrapper class
-        ///// </summary>
-        //[EditorBrowsable(EditorBrowsableState.Never), Browsable(false), Category("NetOffice")]
-        //public string InstanceName
-        //{
-        //    get
-        //    {
-        //        return InstanceType.FullName;
-        //    }
-        //}
-
         /// <summary>
         /// NetOffice property: Friendly Name of the NetOffice Wrapper class
         /// </summary>
@@ -1000,6 +1030,23 @@ namespace NetOffice
                 if (null == _instanceType)
                     _instanceType = GetType();
                 return _instanceType;
+            }
+        }
+
+        /// <summary>
+        /// Type informations from ICOMObject contract
+        /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
+        public virtual Type ContractType
+        {
+            get
+            {
+                if (null == _contractType)
+                {
+                    Type[] allInterfaces = InstanceType.GetInterfaces();
+                    _contractType = allInterfaces.Except(allInterfaces.SelectMany(t => t.GetInterfaces())).FirstOrDefault(e => e.HasCustomAttribute<TypeIdAttribute>());
+                }
+                return _contractType;
             }
         }
 
@@ -1053,7 +1100,7 @@ namespace NetOffice
         /// <exception cref="COMDisposeException">An unexpected error occurs.</exception>
         public virtual void Dispose(bool disposeEventBinding)
         {
-            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::Dispose", PerformanceTrace.CallType.Method);
+            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::Dispose", PerformanceTrace.CallType.Method);
             bool isRootObject = null == ParentObject;
             try
             {
@@ -1121,7 +1168,7 @@ namespace NetOffice
                 }
 
                 if (measureStarted)
-                    Settings.PerformanceTrace.StopMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::Dispose");
+                    Settings.PerformanceTrace.StopMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::Dispose");
             }
             catch (Exception exception)
             {
@@ -1731,7 +1778,7 @@ namespace NetOffice
             _isInitialized = true;
         }
 
-        #endregion      
+        #endregion
 
         #region ICloneable
 
@@ -1822,51 +1869,7 @@ namespace NetOffice
 
         #endregion
 
-        #region Overrides
-
-        /// <summary>
-        /// Serves as a hash function for a particular type.
-        /// </summary>
-        /// <returns>System.Int32 instance</returns>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>System.String instance</returns>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public override string ToString()
-        {
-            return GetType().Name;
-        }
-
-        /// <summary>
-        /// Determines whether two Object instances are equal.
-        /// </summary>
-        /// <returns>true if equal, otherwise false</returns>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public override bool Equals(Object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        /// <summary>
-        /// Gets a Type object that represents the specified type.
-        /// </summary>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public new Type GetType()
-        {
-            return base.GetType();
-        }
-
-        #endregion
-
-        #region Operator Overloads
+        #region Equals
 
         /// <summary>
         /// Determines whether two ICOMObject instances pointing to the same remote server instance.
@@ -1938,6 +1941,10 @@ namespace NetOffice
             }
         }
 
+        #endregion
+
+        #region Operators
+
         /// <summary>
         /// Determines whether two COMObject instances are equal.
         /// </summary>
@@ -1947,7 +1954,7 @@ namespace NetOffice
         /// <exception cref="NetOfficeCOMException">unexpected error</exception>
         public static bool operator ==(COMObject objectA, COMObject objectB)
         {
-            if (!Settings.Default.EnableOperatorOverlads)
+            if (!Settings.EnableOperatorOverloadsInternal)
                 return Object.ReferenceEquals(objectA, objectB);
 
             if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
@@ -1967,7 +1974,7 @@ namespace NetOffice
         /// <exception cref="NetOfficeCOMException">unexpected error</exception>
         public static bool operator ==(COMObject objectA, object objectB)
         {
-            if (!Settings.Default.EnableOperatorOverlads)
+            if (!Settings.EnableOperatorOverloadsInternal)
                 return Object.ReferenceEquals(objectA, objectB);
 
             if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
@@ -1987,7 +1994,7 @@ namespace NetOffice
         /// <exception cref="NetOfficeCOMException">unexpected error</exception>
         public static bool operator ==(object objectA, COMObject objectB)
         {
-            if (!Settings.Default.EnableOperatorOverlads)
+            if (!Settings.EnableOperatorOverloadsInternal)
                 return Object.ReferenceEquals(objectA, objectB);
 
             if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
@@ -2013,7 +2020,7 @@ namespace NetOffice
         /// <exception cref="NetOfficeCOMException">unexpected error</exception>
         public static bool operator !=(COMObject objectA, COMObject objectB)
         {
-            if (!Settings.Default.EnableOperatorOverlads)
+            if (!Settings.EnableOperatorOverloadsInternal)
                 return Object.ReferenceEquals(objectA, objectB);
 
             if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
@@ -2033,7 +2040,7 @@ namespace NetOffice
         /// <exception cref="NetOfficeCOMException">unexpected error</exception>
         public static bool operator !=(COMObject objectA, object objectB)
         {
-            if (!Settings.Default.EnableOperatorOverlads)
+            if (!Settings.EnableOperatorOverloadsInternal)
                 return Object.ReferenceEquals(objectA, objectB);
 
             if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
@@ -2053,7 +2060,7 @@ namespace NetOffice
         /// <exception cref="NetOfficeCOMException">unexpected error</exception>
         public static bool operator !=(object objectA, COMObject objectB)
         {
-            if (!Settings.Default.EnableOperatorOverlads)
+            if (!Settings.EnableOperatorOverloadsInternal)
                 return Object.ReferenceEquals(objectA, objectB);
 
             if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
@@ -2070,6 +2077,49 @@ namespace NetOffice
                 return true;
         }
 
+        #endregion
+
+        #region Overrides
+
+        /// <summary>
+        /// Serves as a hash function for a particular type.
+        /// </summary>
+        /// <returns>System.Int32 instance</returns>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>System.String instance</returns>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public override string ToString()
+        {
+            return InstanceType.Name;
+        }
+
+        /// <summary>
+        /// Determines whether two Object instances are equal.
+        /// </summary>
+        /// <returns>true if equal, otherwise false</returns>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public override bool Equals(Object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        /// <summary>
+        /// Gets a Type object that represents the specified type.
+        /// </summary>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public new Type GetType()
+        {
+            return base.GetType();
+        }
 
         #endregion
     }

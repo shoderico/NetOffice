@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="ClrHost.cpp" />
+    <ClCompile Include="ManagedAddin.cpp" />
+    <ClCompile Include="ManagedCustomTaskPaneConsumer.cpp" />
+    <ClCompile Include="ManagedRibbonExtensibility.cpp" />
+    <ClCompile Include="OuterComAggregator.cpp" />
+    <ClCompile Include="ShimArguments.cpp" />
+    <ClCompile Include="ShimProxy.cpp" />
+    <ClCompile Include="ShimHost.cpp" />
+    <ClCompile Include="ShimUpdateHost.cpp">
+      <Filter>Updates</Filter>
+    </ClCompile>
+    <ClCompile Include="CLRUpdateHost.cpp">
+      <Filter>Updates</Filter>
+    </ClCompile>
+    <ClCompile Include="DllRegister32.cpp">
+      <Filter>Register</Filter>
+    </ClCompile>
+    <ClCompile Include="DllRegister32On64.cpp">
+      <Filter>Register</Filter>
+    </ClCompile>
+    <ClCompile Include="DllRegister64.cpp">
+      <Filter>Register</Filter>
+    </ClCompile>
+    <ClCompile Include="OuterUpdateAggregator.cpp">
+      <Filter>Updates</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagedUpdateHandler.cpp">
+      <Filter>Updates</Filter>
+    </ClCompile>
+    <ClCompile Include="DllRegisterModeParser.cpp">
+      <Filter>Register</Filter>
+    </ClCompile>
+    <ClCompile Include="DllMain.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="ShimProxyFactory.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomRegisterValue.cpp">
+      <Filter>Register</Filter>
+    </ClCompile>
+    <ClCompile Include="PathParser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ClrHost.h" />
+    <ClInclude Include="ManagedAddin.h" />
+    <ClInclude Include="ManagedCustomTaskPaneConsumer.h" />
+    <ClInclude Include="ManagedRibbonExtensibility.h" />
+    <ClInclude Include="OuterComAggregator.h" />
+    <ClInclude Include="ShimArguments.h" />
+    <ClInclude Include="ShimProxy.h" />
+    <ClInclude Include="ShimHost.h" />
+    <ClInclude Include="ShimUpdateHost.h">
+      <Filter>Updates</Filter>
+    </ClInclude>
+    <ClInclude Include="CLRUpdateHost.h">
+      <Filter>Updates</Filter>
+    </ClInclude>
+    <ClInclude Include="DllRegister32.h">
+      <Filter>Register</Filter>
+    </ClInclude>
+    <ClInclude Include="DllRegister32On64.h">
+      <Filter>Register</Filter>
+    </ClInclude>
+    <ClInclude Include="DllRegister64.h">
+      <Filter>Register</Filter>
+    </ClInclude>
+    <ClInclude Include="DllRegisterMode.hpp">
+      <Filter>Register</Filter>
+    </ClInclude>
+    <ClInclude Include="Extensibility2.h">
+      <Filter>Interop</Filter>
+    </ClInclude>
+    <ClInclude Include="ICTPFactory.h">
+      <Filter>Interop</Filter>
+    </ClInclude>
+    <ClInclude Include="IRibbonExtensibility.h">
+      <Filter>Interop</Filter>
+    </ClInclude>
+    <ClInclude Include="OuterUpdateAggregator.h">
+      <Filter>Updates</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagedUpdateHandler.h">
+      <Filter>Updates</Filter>
+    </ClInclude>
+    <ClInclude Include="DllRegisterModeParser.h">
+      <Filter>Register</Filter>
+    </ClInclude>
+    <ClInclude Include="ShimProxyFactory.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Vars.hpp">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="IShimProxy.hpp">
+      <Filter>Contracts</Filter>
+    </ClInclude>
+    <ClInclude Include="Aggregators.h">
+      <Filter>Contracts</Filter>
+    </ClInclude>
+    <ClInclude Include="Vars.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomRegisterValue.h">
+      <Filter>Register</Filter>
+    </ClInclude>
+    <ClInclude Include="PathParser.h" />
+    <ClInclude Include="WriteLog.hpp">
+      <Filter>Analytics</Filter>
+    </ClInclude>
+    <ClInclude Include="WriteRegisterLog.hpp">
+      <Filter>Analytics</Filter>
+    </ClInclude>
+    <ClInclude Include="WriteUnRegisterLog.hpp">
+      <Filter>Analytics</Filter>
+    </ClInclude>
+    <ClInclude Include="Module.hpp">
+      <Filter>Module</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Updates">
+      <UniqueIdentifier>{08119fa8-4938-4ada-8d3f-ea52fab79a07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Register">
+      <UniqueIdentifier>{2470e796-b1a1-4aae-a7fe-09bc7e39681a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interop">
+      <UniqueIdentifier>{6c99f5bd-2854-4256-a2b0-520fa297c09b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{89464900-5216-49de-adeb-a6f5974acbf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{6c711b00-63b8-4da7-ab0e-c0da66b92bc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Exports">
+      <UniqueIdentifier>{31a0c94c-ebf6-48bb-ba68-9dbe604ddc87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Contracts">
+      <UniqueIdentifier>{95c25273-cfe6-49db-94ef-8b185d14716e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analytics">
+      <UniqueIdentifier>{03bddb3e-a138-4f59-adec-c7f1957fe90f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module">
+      <UniqueIdentifier>{9d048b22-12ad-476d-8df1-15b234eede35}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Manifest.xml">
+      <Filter>Resources</Filter>
+    </Xml>
+    <Xml Include="Redirection.xml">
+      <Filter>Resources</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ShimLoader.def">
+      <Filter>Exports</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ShimLoader.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

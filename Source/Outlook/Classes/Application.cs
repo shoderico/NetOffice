@@ -43,13 +43,15 @@ namespace NetOffice.OutlookApi
     [InteropCompatibilityClass]
     public class ApplicationClass : NetOffice.OutlookApi.Behind.Application
     {
+        private string _defaultProgId = "Outlook.Application";
+
         /// <summary>
         /// Creates a new instance of Microsoft Outlook
         /// </summary>
         public ApplicationClass()
         {
             ICOMObjectInitialize init = (ICOMObjectInitialize)this;
-            init.InitializeCOMObject("Outlook.Application");
+            init.InitializeCOMObject(_defaultProgId);
         }
 
         /// <summary>
@@ -75,6 +77,19 @@ namespace NetOffice.OutlookApi
         {
 
         }
+
+        /// <summary>
+        /// Creates a new instance of Microsoft Outlook
+        /// </summary>
+        /// <param name="mode">indicates where is the call coming from</param>
+        public ApplicationClass(NetOffice.Callers.InteropCompatibilityClassCreateMode mode)
+        {
+            if (mode == NetOffice.Callers.InteropCompatibilityClassCreateMode.Direct)
+            {
+                ICOMObjectInitialize init = (ICOMObjectInitialize)this;
+                init.InitializeCOMObject(_defaultProgId);
+            }
+        }
     }
 
     /// <summary>
@@ -86,7 +101,7 @@ namespace NetOffice.OutlookApi
 	[EntityType(EntityType.IsCoClass), ComProgId("Outlook.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(EventContracts.ApplicationEvents), typeof(EventContracts.ApplicationEvents_10), typeof(EventContracts.ApplicationEvents_11))]
 	[TypeId("0006F03A-0000-0000-C000-000000000046")]
-    public interface Application : _Application, ICloneable<Application>, IEventBinding, IAutomaticQuit, ICOMObjectProxyService
+    public interface Application : _Application, ICloneable<Application>, IEventBinding, ICOMObjectProxyService
     {
         #region Events
 

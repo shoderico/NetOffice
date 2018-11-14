@@ -12,13 +12,28 @@ namespace NetOffice.AccessApi.Behind
 	/// <summary>
 	/// DispatchInterface _SmartTagProperties 
 	/// SupportByVersion Access, 11,12,14,15,16
-	/// </summary>	[SupportByVersion("Access", 11,12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), BaseType, Enumerator(Enumerator.Reference, EnumeratorInvoke.Method), HasIndexProperty(IndexInvoke.Property, "Item")]
+	/// </summary>	
 	public class _SmartTagProperties : COMObject, NetOffice.AccessApi._SmartTagProperties
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.AccessApi._SmartTagProperties);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

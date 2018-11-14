@@ -79,13 +79,15 @@ namespace NetOffice.MSProjectApi
     [InteropCompatibilityClass]
     public class ApplicationClass : NetOffice.MSProjectApi.Behind.Application
     {
+        private string _defaultProgId = "MSProject.Application";
+
         /// <summary>
         /// Creates a new instance of Microsoft Project
         /// </summary>
         public ApplicationClass()
         {
             ICOMObjectInitialize init = (ICOMObjectInitialize)this;
-            init.InitializeCOMObject("MSProject.Application");
+            init.InitializeCOMObject(_defaultProgId);
         }
 
         /// <summary>
@@ -111,6 +113,19 @@ namespace NetOffice.MSProjectApi
         {
 
         }
+
+        /// <summary>
+        /// Creates a new instance of Microsoft Project
+        /// </summary>
+        /// <param name="mode">indicates where is the call coming from</param>
+        public ApplicationClass(NetOffice.Callers.InteropCompatibilityClassCreateMode mode)
+        {
+            if (mode == NetOffice.Callers.InteropCompatibilityClassCreateMode.Direct)
+            {
+                ICOMObjectInitialize init = (ICOMObjectInitialize)this;
+                init.InitializeCOMObject(_defaultProgId);
+            }
+        }
     }
 
     /// <summary>
@@ -122,7 +137,7 @@ namespace NetOffice.MSProjectApi
 	[EntityType(EntityType.IsCoClass), ComProgId("MSProject.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(EventContracts._EProjectApp2))]
 	[TypeId("36D27C48-A1E8-11D3-BA55-00C04F72F325")]
-    public interface Application : _MSProject, ICloneable<Application>, IEventBinding, IAutomaticQuit, ICOMObjectProxyService
+    public interface Application : _MSProject, ICloneable<Application>, IEventBinding, ICOMObjectProxyService
     {
 		#region Events
 

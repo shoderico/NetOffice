@@ -2,7 +2,6 @@
 using NetRuntimeSystem = System;
 using System.ComponentModel;
 using NetOffice.Attributes;
-using NetOffice.CoreServices;
 
 namespace NetOffice.WordApi
 {
@@ -14,7 +13,7 @@ namespace NetOffice.WordApi
     [EntityType(EntityType.IsDispatchInterface), BaseType]
 	[TypeId("00020970-0000-0000-C000-000000000046")]
     [CoClassSource(typeof(NetOffice.WordApi.Application))]
-    public interface _Application : ICOMObject, IApplicationVersionProvider
+    public interface _Application : ICOMObject
     {
         #region Properties
 
@@ -49,7 +48,7 @@ namespace NetOffice.WordApi
         /// </summary>
         /// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff845178.aspx </remarks>
         [SupportByVersion("Word", 9, 10, 11, 12, 14, 15, 16)]
-        new string Name { get; }
+        string Name { get; }
 
         /// <summary>
         /// SupportByVersion Word 9, 10, 11, 12, 14, 15, 16
@@ -241,7 +240,7 @@ namespace NetOffice.WordApi
         /// </summary>
         /// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff821519.aspx </remarks>
         [SupportByVersion("Word", 9, 10, 11, 12, 14, 15, 16)]
-        new string Version { get; }
+        string Version { get; }
 
         /// <summary>
         /// SupportByVersion Word 9, 10, 11, 12, 14, 15, 16

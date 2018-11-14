@@ -4,20 +4,33 @@ using System.ComponentModel;
 using NetOffice.Attributes;
 using NetOffice.OfficeApi;
 
-namespace NetOffice.OfficeApi.Behinds
+namespace NetOffice.OfficeApi.Behind
 {
     /// <summary>
     /// DispatchInterface ThreeDFormat 
     /// SupportByVersion Office, 9,10,11,12,14,15,16
     /// </summary>
-    [SupportByVersion("Office", 9, 10, 11, 12, 14, 15, 16)]
-    [EntityType(EntityType.IsDispatchInterface)]
-    [Duplicate("NetOffice.ExcelApi.ThreeDFormat")]
     public class ThreeDFormat : NetOffice.OfficeApi.Behind._IMsoDispObj, NetOffice.OfficeApi.ThreeDFormat
     {
         #pragma warning disable
 
         #region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.OfficeApi.ThreeDFormat);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

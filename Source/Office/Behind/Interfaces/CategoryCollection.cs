@@ -12,13 +12,27 @@ namespace NetOffice.OfficeApi.Behind
     /// Interface CategoryCollection 
     /// SupportByVersion Office, 15, 16
     /// </summary>
-    [SupportByVersion("Office", 15, 16)]
-    [EntityType(EntityType.IsInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Custom), HasIndexProperty(IndexInvoke.Property, "_Default")]
     public class CategoryCollection : COMObject, NetOffice.OfficeApi.CategoryCollection
     {
         #pragma warning disable
 
         #region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.OfficeApi.CategoryCollection);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
         /// <summary>
         /// Instance Type

@@ -13,14 +13,28 @@ namespace NetOffice.WordApi.Behind
 	/// DispatchInterface AutoCorrectEntries 
 	/// SupportByVersion Word, 9,10,11,12,14,15,16
 	/// </summary>
-    /// /// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff193703.aspx </remarks>
-	[SupportByVersion("Word", 9,10,11,12,14,15,16)]
-	[EntityType(EntityType.IsDispatchInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Method, "Item")]
+    /// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff193703.aspx </remarks>
 	public class AutoCorrectEntries : COMObject, NetOffice.WordApi.AutoCorrectEntries
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.WordApi.AutoCorrectEntries);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

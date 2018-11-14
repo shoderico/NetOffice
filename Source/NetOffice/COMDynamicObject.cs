@@ -7,9 +7,11 @@ using System.ComponentModel;
 using COMTypes = System.Runtime.InteropServices.ComTypes;
 using System.Dynamic;
 using System.Collections;
+using System.Linq;
 using System.Linq.Expressions;
 using NetOffice.Resolver;
 using NetOffice.Availity;
+using NetOffice.Attributes;
 using NetOffice.Dynamics;
 using NetOffice.Exceptions;
 using NetOffice.CoreServices;
@@ -194,6 +196,11 @@ namespace NetOffice
         /// Self Type Cache
         /// </summary>
         private static Type _instanceType = typeof(COMDynamicObject);
+
+        /// <summary>
+        /// Contract Type cache field
+        /// </summary>
+        private Type _contractType = null;
 
         /// <summary>
         /// Given ProgID in ctor or null
@@ -454,11 +461,11 @@ namespace NetOffice
             // release himself from COM Runtime System
             if (!_proxyShare.Released)
             {
-                bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::ReleaseCOMProxy", PerformanceTrace.CallType.Method);
+                bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::ReleaseCOMProxy", PerformanceTrace.CallType.Method);
                 _proxyShare.Release();
                 Factory.InternalObjectRegister.RemoveObjectFromList(this, ownerPath);
                 if (measureStarted)
-                    Settings.PerformanceTrace.StopMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::ReleaseCOMProxy");
+                    Settings.PerformanceTrace.StopMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::ReleaseCOMProxy");
             }
         }
 
@@ -504,13 +511,13 @@ namespace NetOffice
         /// <returns>newly created instance</returns>
         private object CreateFromProgId(string progId)
         {
-            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::CreateFromProgId", PerformanceTrace.CallType.Method);
+            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::CreateFromProgId", PerformanceTrace.CallType.Method);
 
             UnderlyingType = System.Type.GetTypeFromProgID(progId, true);
             object underlyingObject = Activator.CreateInstance(UnderlyingType);
 
             if (measureStarted)
-                Settings.PerformanceTrace.StopMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::CreateFromProgId");
+                Settings.PerformanceTrace.StopMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::CreateFromProgId");
 
             return underlyingObject;
         }
@@ -974,6 +981,7 @@ namespace NetOffice
         /// <summary>
         /// Returns the native wrapped proxy
         /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
         public object UnderlyingObject
         {
             get
@@ -987,59 +995,10 @@ namespace NetOffice
         /// </summary>
         public Type UnderlyingType { get; private set; }
 
-        ///// <summary>
-        ///// Class name from UnderlyingObject
-        ///// </summary>
-        //public string UnderlyingTypeName
-        //{
-        //    get
-        //    {
-        //        if (null == _underlyingTypeName)
-        //            _underlyingTypeName = new UnderlyingTypeNameResolver().GetClassName(this);
-        //        return _underlyingTypeName;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Returns friendly name for the instance type
-        ///// </summary>
-        //public string UnderlyingFriendlyTypeName
-        //{
-        //    get
-        //    {
-        //        if (null == _friendlyTypeName)
-        //            _friendlyTypeName = new UnderlyingTypeNameResolver().GetFriendlyClassName(this, _underlyingTypeName);
-        //        return _friendlyTypeName;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Name of the hosting NetOffice component
-        ///// </summary>
-        //public string UnderlyingComponentName
-        //{
-        //    get
-        //    {
-        //        if (null == _underlyingComponentName)
-        //            _underlyingComponentName = new UnderlyingTypeNameResolver().GetComponentName(this);
-        //        return _underlyingComponentName;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Friendly instance name of the NetOffice Wrapper class
-        ///// </summary>
-        //public string InstanceName
-        //{
-        //    get
-        //    {
-        //        return InstanceType.FullName;
-        //    }
-        //}
-
         /// <summary>
         /// Friendly Name of the NetOffice Wrapper class
         /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
         public string InstanceFriendlyName
         {
             get
@@ -1054,6 +1013,7 @@ namespace NetOffice
         /// <summary>
         /// Name of the hosting NetOffice component
         /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
         public string InstanceComponentName
         {
             get
@@ -1065,11 +1025,29 @@ namespace NetOffice
         /// <summary>
         /// Type informations from ICOMObject instance
         /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
         public Type InstanceType
         {
             get
             {
                 return _instanceType;
+            }
+        }
+
+        /// <summary>
+        /// Type informations from ICOMObject contract
+        /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
+        public virtual Type ContractType
+        {
+            get
+            {
+                if (null == _contractType)
+                {
+                    Type[] allInterfaces = InstanceType.GetInterfaces();
+                    _contractType = allInterfaces.Except(allInterfaces.SelectMany(t => t.GetInterfaces())).FirstOrDefault(e => e.HasCustomAttribute<TypeIdAttribute>());
+                }
+                return _contractType;
             }
         }
 
@@ -1120,7 +1098,7 @@ namespace NetOffice
         /// <exception cref="COMDisposeException">An unexpected error occurs.</exception>
         public virtual void Dispose(bool disposeEventBinding)
         {
-            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::Dispose", PerformanceTrace.CallType.Method);
+            bool measureStarted = Settings.PerformanceTrace.StartMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::Dispose", PerformanceTrace.CallType.Method);
             bool isRootObject = null == ParentObject;
             try
             {
@@ -1187,7 +1165,7 @@ namespace NetOffice
                 }
 
                 if (measureStarted)
-                    Settings.PerformanceTrace.StopMeasureTime(InstanceType.Namespace, InstanceType.Name, "NetOffice::Dispose");
+                    Settings.PerformanceTrace.StopMeasureTime(ContractType.Namespace, ContractType.Name, "NetOffice::Dispose");
             }
             catch (Exception exception)
             {
@@ -1460,6 +1438,256 @@ namespace NetOffice
 
         #endregion
 
+        #region Equals
+
+        /// <summary>
+        /// Determines whether two ICOMObject instances pointing to the same remote server instance.
+        /// </summary>
+        /// <param name="objectA">first instance to compare</param>
+        /// <param name="objectB">second instance to compare</param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool EqualsOnServer(object objectA, object objectB)
+        {
+            ICOMObject objA = objectA as ICOMObject;
+            ICOMObject objB = objectA as ICOMObject;
+
+            if (null != objA)
+                return objA.EqualsOnServer(objB);
+            else if (null != objB)
+                return false;
+            else
+                return Object.ReferenceEquals(objA, objectB);
+        }
+
+        /// <summary>
+        /// Determines whether two ICOMObject instances pointing to the same remote server instance.
+        /// </summary>
+        /// <param name="obj">target instance to compare</param>
+        /// <returns>true if equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public bool EqualsOnServer(ICOMObject obj)
+        {
+            if (_isCurrentlyDisposing || _isDisposed)
+                return base.Equals(obj);
+
+            if (Object.ReferenceEquals(obj, null))
+                return false;
+
+            IntPtr outValueA = IntPtr.Zero;
+            IntPtr outValueB = IntPtr.Zero;
+            IntPtr ptrA = IntPtr.Zero;
+            IntPtr ptrB = IntPtr.Zero;
+            try
+            {
+                ptrA = Marshal.GetIUnknownForObject(this.UnderlyingObject);
+                int hResultA = Marshal.QueryInterface(ptrA, ref IID_IUnknown, out outValueA);
+
+                ptrB = Marshal.GetIUnknownForObject(obj.UnderlyingObject);
+                int hResultB = Marshal.QueryInterface(ptrB, ref IID_IUnknown, out outValueB);
+
+                return (hResultA == 0 && hResultB == 0 && ptrA == ptrB);
+            }
+            catch (Exception exception)
+            {
+                Factory.Console.WriteException(exception);
+                throw new NetOfficeCOMException("Unexpected error during semantically instance comparsion.", exception);
+            }
+            finally
+            {
+                if (IntPtr.Zero != ptrA)
+                    Marshal.Release(ptrA);
+
+                if (IntPtr.Zero != outValueA)
+                    Marshal.Release(outValueA);
+
+                if (IntPtr.Zero != ptrB)
+                    Marshal.Release(ptrB);
+
+                if (IntPtr.Zero != outValueB)
+                    Marshal.Release(outValueB);
+            }
+        }
+
+        #endregion
+
+        #region Operators
+
+        /// <summary>
+        /// Determines whether two COMObject instances are equal.
+        /// </summary>
+        /// <param name="objectA"></param>
+        /// <param name="objectB"></param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator ==(COMDynamicObject objectA, ICOMObject objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return true;
+            else if (!Object.ReferenceEquals(objectA, null))
+                return objectA.EqualsOnServer(objectB);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are not equal.
+        /// </summary>
+        /// <param name="objectA">first instance</param>
+        /// <param name="objectB">second instance</param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator !=(COMDynamicObject objectA, ICOMObject objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return false;
+            else if (!Object.ReferenceEquals(objectA, null))
+                return !objectA.EqualsOnServer(objectB);
+            else
+                return true;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are equal.
+        /// </summary>
+        /// <param name="objectA"></param>
+        /// <param name="objectB"></param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator ==(COMDynamicObject objectA, COMDynamicObject objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return true;
+            else if (!Object.ReferenceEquals(objectA, null))
+                return objectA.EqualsOnServer(objectB);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are equal.
+        /// </summary>
+        /// <param name="objectA"></param>
+        /// <param name="objectB"></param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator ==(COMDynamicObject objectA, object objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return true;
+            else if (!Object.ReferenceEquals(objectA, null))
+                return objectA.EqualsOnServer(objectB as ICOMObject);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are equal.
+        /// </summary>
+        /// <param name="objectA">first instance</param>
+        /// <param name="objectB">second instance</param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator ==(object objectA, COMDynamicObject objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return true;
+            else if (!Object.ReferenceEquals(objectA, null))
+            {
+                ICOMObject a = (objectA as ICOMObject);
+                if (null != a)
+                    return a.EqualsOnServer(objectB);
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are not equal.
+        /// </summary>
+        /// <param name="objectA">first instance</param>
+        /// <param name="objectB">second instance</param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator !=(COMDynamicObject objectA, COMDynamicObject objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return false;
+            else if (!Object.ReferenceEquals(objectA, null))
+                return !objectA.EqualsOnServer(objectB);
+            else
+                return true;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are not equal.
+        /// </summary>
+        /// <param name="objectA">first instance</param>
+        /// <param name="objectB">second instance</param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator !=(COMDynamicObject objectA, object objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return false;
+            else if (!Object.ReferenceEquals(objectA, null))
+                return !objectA.EqualsOnServer(objectB as ICOMObject);
+            else
+                return true;
+        }
+
+        /// <summary>
+        /// Determines whether two COMObject instances are not equal.
+        /// </summary>
+        /// <param name="objectA">first instance</param>
+        /// <param name="objectB">second instance</param>
+        /// <returns>true if arguments equal, otherwise false</returns>
+        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
+        public static bool operator !=(object objectA, COMDynamicObject objectB)
+        {
+            if (!Settings.EnableOperatorOverloadsInternal)
+                return Object.ReferenceEquals(objectA, objectB);
+
+            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
+                return false;
+            else if (!Object.ReferenceEquals(objectA, null))
+            {
+                ICOMObject a = objectA as ICOMObject;
+                if (null != a)
+                    return !a.EqualsOnServer(objectB);
+                else
+                    return null == objectB ? false : true;
+            }
+            else
+                return true;
+        }
+
+        #endregion
+
         #region Overrides
 
         /// <summary>
@@ -1557,7 +1785,7 @@ namespace NetOffice
                 return true;
             }
             else
-            {               
+            {
                 string className = TypeDescriptor.GetClassName(UnderlyingObject);
 
                 Guid typeId = Guid.Empty;
@@ -1705,252 +1933,6 @@ namespace NetOffice
                 result = InvokeMethod(binder.Name, args);
                 return true;
             }
-        }
-
-        #endregion
-
-        #region Operator Overloads
-
-        /// <summary>
-        /// Determines whether two ICOMObject instances pointing to the same remote server instance.
-        /// </summary>
-        /// <param name="objectA">first instance to compare</param>
-        /// <param name="objectB">second instance to compare</param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool EqualsOnServer(object objectA, object objectB)
-        {
-            ICOMObject objA = objectA as ICOMObject;
-            ICOMObject objB = objectA as ICOMObject;
-
-            if (null != objA)
-                return objA.EqualsOnServer(objB);
-            else if (null != objB)
-                return false;
-            else
-                return Object.ReferenceEquals(objA, objectB);
-        }
-
-        /// <summary>
-        /// Determines whether two ICOMObject instances pointing to the same remote server instance.
-        /// </summary>
-        /// <param name="obj">target instance to compare</param>
-        /// <returns>true if equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public bool EqualsOnServer(ICOMObject obj)
-        {
-            if (_isCurrentlyDisposing || _isDisposed)
-                return base.Equals(obj);
-
-            if (Object.ReferenceEquals(obj, null))
-                return false;
-
-            IntPtr outValueA = IntPtr.Zero;
-            IntPtr outValueB = IntPtr.Zero;
-            IntPtr ptrA = IntPtr.Zero;
-            IntPtr ptrB = IntPtr.Zero;
-            try
-            {
-                ptrA = Marshal.GetIUnknownForObject(this.UnderlyingObject);
-                int hResultA = Marshal.QueryInterface(ptrA, ref IID_IUnknown, out outValueA);
-
-                ptrB = Marshal.GetIUnknownForObject(obj.UnderlyingObject);
-                int hResultB = Marshal.QueryInterface(ptrB, ref IID_IUnknown, out outValueB);
-
-                return (hResultA == 0 && hResultB == 0 && ptrA == ptrB);
-            }
-            catch (Exception exception)
-            {
-                Factory.Console.WriteException(exception);
-                throw new NetOfficeCOMException("Unexpected error during semantically instance comparsion.", exception);
-            }
-            finally
-            {
-                if (IntPtr.Zero != ptrA)
-                    Marshal.Release(ptrA);
-
-                if (IntPtr.Zero != outValueA)
-                    Marshal.Release(outValueA);
-
-                if (IntPtr.Zero != ptrB)
-                    Marshal.Release(ptrB);
-
-                if (IntPtr.Zero != outValueB)
-                    Marshal.Release(outValueB);
-            }
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are equal.
-        /// </summary>
-        /// <param name="objectA"></param>
-        /// <param name="objectB"></param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator ==(COMDynamicObject objectA, COMObject objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return true;
-            else if (!Object.ReferenceEquals(objectA, null))
-                return objectA.EqualsOnServer(objectB);
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are not equal.
-        /// </summary>
-        /// <param name="objectA">first instance</param>
-        /// <param name="objectB">second instance</param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator !=(COMDynamicObject objectA, COMObject objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return false;
-            else if (!Object.ReferenceEquals(objectA, null))
-                return !objectA.EqualsOnServer(objectB);
-            else
-                return true;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are equal.
-        /// </summary>
-        /// <param name="objectA"></param>
-        /// <param name="objectB"></param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator ==(COMDynamicObject objectA, COMDynamicObject objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return true;
-            else if (!Object.ReferenceEquals(objectA, null))
-                return objectA.EqualsOnServer(objectB);
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are equal.
-        /// </summary>
-        /// <param name="objectA"></param>
-        /// <param name="objectB"></param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator ==(COMDynamicObject objectA, object objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return true;
-            else if (!Object.ReferenceEquals(objectA, null))
-                return objectA.EqualsOnServer(objectB as ICOMObject);
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are equal.
-        /// </summary>
-        /// <param name="objectA">first instance</param>
-        /// <param name="objectB">second instance</param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator ==(object objectA, COMDynamicObject objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return true;
-            else if (!Object.ReferenceEquals(objectA, null))
-            {
-                ICOMObject a = (objectA as ICOMObject);
-                if (null != a)
-                    return a.EqualsOnServer(objectB);
-                else
-                    return false;
-            }
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are not equal.
-        /// </summary>
-        /// <param name="objectA">first instance</param>
-        /// <param name="objectB">second instance</param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator !=(COMDynamicObject objectA, COMDynamicObject objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return false;
-            else if (!Object.ReferenceEquals(objectA, null))
-                return !objectA.EqualsOnServer(objectB);
-            else
-                return true;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are not equal.
-        /// </summary>
-        /// <param name="objectA">first instance</param>
-        /// <param name="objectB">second instance</param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator !=(COMDynamicObject objectA, object objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return false;
-            else if (!Object.ReferenceEquals(objectA, null))
-                return !objectA.EqualsOnServer(objectB as ICOMObject);
-            else
-                return true;
-        }
-
-        /// <summary>
-        /// Determines whether two COMObject instances are not equal.
-        /// </summary>
-        /// <param name="objectA">first instance</param>
-        /// <param name="objectB">second instance</param>
-        /// <returns>true if arguments equal, otherwise false</returns>
-        /// <exception cref="NetOfficeCOMException">unexpected error</exception>
-        public static bool operator !=(object objectA, COMDynamicObject objectB)
-        {
-            if (!Settings.Default.EnableOperatorOverlads)
-                return Object.ReferenceEquals(objectA, objectB);
-
-            if (Object.ReferenceEquals(objectA, null) && Object.ReferenceEquals(objectB, null))
-                return false;
-            else if (!Object.ReferenceEquals(objectA, null))
-            {
-                ICOMObject a = objectA as ICOMObject;
-                if (null != a)
-                    return !a.EqualsOnServer(objectB);
-                else
-                    return null == objectB ? false : true;
-            }
-            else
-                return true;
         }
 
         #endregion

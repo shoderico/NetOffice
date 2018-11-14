@@ -8,6 +8,7 @@ namespace NetOffice.OutlookApi.Tools
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
     public class OlCustomUIAttribute : System.Attribute
     {
+
         /// <summary>
         /// Explorer Ribbon ID
         /// </summary>
@@ -27,7 +28,7 @@ namespace NetOffice.OutlookApi.Tools
         /// Use root namespace of the calling instance
         /// </summary>
         public readonly bool UseAssemblyNamespace;
-       
+
         /// <summary>
         /// Creates an instance of the Attribute
         /// </summary>

@@ -7,7 +7,7 @@ using NetOffice.PowerPointApi;
 namespace NetOffice.PowerPointApi.Behind
 {
 	/// <summary>
-	/// DispatchInterface Point 
+	/// DispatchInterface Point
 	/// SupportByVersion PowerPoint, 14,15,16
 	/// </summary>
 	/// <remarks> MSDN Online: http://msdn.microsoft.com/en-us/en-us/library/office/ff746485.aspx </remarks>
@@ -18,6 +18,22 @@ namespace NetOffice.PowerPointApi.Behind
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.PowerPointApi.Point);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type
@@ -41,9 +57,9 @@ namespace NetOffice.PowerPointApi.Behind
                     _type = typeof(Point);                return _type;
             }
         }
-        
+
         #endregion
-        
+
 		#region Ctor
 
 		/// <summary>
@@ -55,8 +71,8 @@ namespace NetOffice.PowerPointApi.Behind
 		}
 
 		#endregion
-		
-		#region Properties
+
+        #region Properties
 
 		/// <summary>
 		/// SupportByVersion PowerPoint 14, 15, 16

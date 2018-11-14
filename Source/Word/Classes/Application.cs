@@ -44,7 +44,7 @@ namespace NetOffice.WordApi
 	public delegate void Application_ProtectedViewWindowSizeEventHandler(NetOffice.WordApi.ProtectedViewWindow pvWindow);
 	public delegate void Application_ProtectedViewWindowActivateEventHandler(NetOffice.WordApi.ProtectedViewWindow pvWindow);
 	public delegate void Application_ProtectedViewWindowDeactivateEventHandler(NetOffice.WordApi.ProtectedViewWindow pvWindow);
-#pragma warning restore
+    #pragma warning restore
 
     #endregion
 
@@ -59,13 +59,15 @@ namespace NetOffice.WordApi
     [InteropCompatibilityClass]
     public class ApplicationClass : NetOffice.WordApi.Behind.Application
     {
+        private string _defaultProgId = "Word.Application";
+
         /// <summary>
         /// Creates a new instance of Microsoft Word
         /// </summary>
         public ApplicationClass()
         {
             ICOMObjectInitialize init = (ICOMObjectInitialize)this;
-            init.InitializeCOMObject("Word.Application");
+            init.InitializeCOMObject(_defaultProgId);
         }
 
         /// <summary>
@@ -91,6 +93,19 @@ namespace NetOffice.WordApi
         {
 
         }
+
+        /// <summary>
+        /// Creates a new instance of Microsoft Word
+        /// </summary>
+        /// <param name="mode">indicates where is the call coming from</param>
+        public ApplicationClass(NetOffice.Callers.InteropCompatibilityClassCreateMode mode)
+        {
+            if (mode == NetOffice.Callers.InteropCompatibilityClassCreateMode.Direct)
+            {
+                ICOMObjectInitialize init = (ICOMObjectInitialize)this;
+                init.InitializeCOMObject(_defaultProgId);
+            }
+        }
     }
 
     /// <summary>
@@ -102,7 +117,7 @@ namespace NetOffice.WordApi
     [EntityType(EntityType.IsCoClass), ComProgId("Word.Application"), ModuleProvider(typeof(ModulesLegacy.ApplicationModule))]
     [ComEventContract(typeof(NetOffice.WordApi.EventContracts.ApplicationEvents2), typeof(NetOffice.WordApi.EventContracts.ApplicationEvents3), typeof(NetOffice.WordApi.EventContracts.ApplicationEvents4))]
 	[TypeId("000209FF-0000-0000-C000-000000000046")]
-    public interface Application : _Application, ICloneable<Application>, IEventBinding, IAutomaticQuit, ICOMObjectProxyService
+    public interface Application : _Application, ICloneable<Application>, IEventBinding, ICOMObjectProxyService
     {
         #region Events
 

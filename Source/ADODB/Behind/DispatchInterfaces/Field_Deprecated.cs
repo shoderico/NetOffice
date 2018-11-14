@@ -10,13 +10,27 @@ namespace NetOffice.ADODBApi.Behind
 	/// DispatchInterface Field_Deprecated 
 	/// SupportByVersion ADODB, 2.5
 	/// </summary>
-	[SupportByVersion("ADODB", 2.5)]
-	[EntityType(EntityType.IsDispatchInterface)]
  	public class Field_Deprecated : Field20_Deprecated, NetOffice.ADODBApi.Field_Deprecated
 	{
 		#pragma warning disable
 
 		#region Type Information
+
+        /// <summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ADODBApi.Field_Deprecated);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
 
 		/// <summary>
 		/// Instance Type

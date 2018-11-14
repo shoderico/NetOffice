@@ -13,8 +13,6 @@ namespace NetOffice.ExcelApi.Behind
     /// Interface IDialogs 
     /// SupportByVersion Excel, 9,10,11,12,14,15,16
     /// </summary>
-    [SupportByVersion("Excel", 9, 10, 11, 12, 14, 15, 16)]
-    [EntityType(EntityType.IsInterface), Enumerator(Enumerator.Reference, EnumeratorInvoke.Property), HasIndexProperty(IndexInvoke.Property, "_Default")]
     public class IDialogs : COMObject, NetOffice.ExcelApi.IDialogs
     {
         #pragma warning disable
@@ -22,7 +20,24 @@ namespace NetOffice.ExcelApi.Behind
         #region Type Information
 
         /// <summary>
-        /// Instance Type        /// </summary>
+        /// Contract Type
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
+        public override Type ContractType
+        {
+            get
+            {
+                if(null == _contractType)
+                    _contractType = typeof(NetOffice.ExcelApi.IDialogs);
+                return _contractType;
+            }
+        }
+        private static Type _contractType;
+
+
+        /// <summary>
+        /// Instance Type 
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Advanced), Browsable(false), Category("NetOffice"), CoreOverridden]
         public override Type InstanceType
         {
