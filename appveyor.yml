@@ -19,3 +19,9 @@ configuration:
 build:
   project: Source\NetOffice.sln
   verbosity: normal
+
+before_build:
+  - appveyor-retry nuget restore Source\NetOffice.sln
+
+cache:
+  - Source\packages -> Source\**\packages.config
