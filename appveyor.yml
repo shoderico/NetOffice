@@ -17,12 +17,15 @@ configuration:
   - Debug
   - Release
 
+environment:
+  VisualStudioVersion: 15.0
+
+init:
+  git config --global core.autocrlf true
+
 build:
   project: Source\NetOffice.sln
   verbosity: normal
 
 before_build:
   - appveyor-retry nuget restore Source\NetOffice.sln
-
-cache:
-  - Source\packages -> Source\**\packages.config
