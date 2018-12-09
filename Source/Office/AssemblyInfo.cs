@@ -16,16 +16,6 @@ using NetOffice.Attributes;
     Office - Microsoft Office 16.0 Object Library - 16
 */
 
-[assembly: AssemblyTitle("Office")]
-[assembly: AssemblyDescription("Netoffice Office Api")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("NetOfficeFw")]
-[assembly: AssemblyProduct("NetOffice")]
-[assembly: AssemblyCopyright("Copyright © 2012-2018 Sebastian Lange")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: PrimaryInteropAssembly(1, 0)]
 [assembly: ImportedFromTypeLib("Office")]
 [assembly: Guid("2DF8D04C-5BFA-101B-BDE5-00AA0044DE52")]
