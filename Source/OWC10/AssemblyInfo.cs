@@ -11,16 +11,6 @@ using NetOffice.Attributes;
 
 */
 
-[assembly: AssemblyTitle("OWC10")]
-[assembly: AssemblyDescription("Netoffice OWC10 Api")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("NetOfficeFw")]
-[assembly: AssemblyProduct("NetOffice")]
-[assembly: AssemblyCopyright("Copyright © 2012-2018 Sebastian Lange")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: PrimaryInteropAssembly(1, 0)]
 [assembly: ImportedFromTypeLib("OWC10")]
 [assembly: Guid("0002E550-0000-0000-C000-000000000046")]

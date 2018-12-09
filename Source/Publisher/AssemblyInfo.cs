@@ -12,16 +12,6 @@ using NetOffice.Attributes;
 	Publisher - Microsoft Publisher 16.0 Object Library - 16
 */
 
-[assembly: AssemblyTitle("Publisher")]
-[assembly: AssemblyDescription("Netoffice Publisher Api")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("NetOfficeFw")]
-[assembly: AssemblyProduct("NetOffice")]
-[assembly: AssemblyCopyright("Copyright © 2012-2018 Sebastian Lange")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: PrimaryInteropAssembly(1, 0)]
 [assembly: ImportedFromTypeLib("Publisher")]
 [assembly: Guid("0002123C-0000-0000-C000-000000000046")]

@@ -11,16 +11,6 @@ using NetOffice.Attributes;
 
 */
 
-[assembly: AssemblyTitle("MSHTML")]
-[assembly: AssemblyDescription("Netoffice MSHTML Api")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("NetOfficeFw")]
-[assembly: AssemblyProduct("NetOffice")]
-[assembly: AssemblyCopyright("Copyright © 2012-2018 Sebastian Lange")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: PrimaryInteropAssembly(1, 0)]
 [assembly: ImportedFromTypeLib("MSHTML")]
 [assembly: Guid("3050F1C5-98B5-11CF-BB82-00AA00BDCE0B")]
