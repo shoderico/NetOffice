@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="DispatchInterfaces\Interop\CustomXMLNode.cs" />
+    <Compile Include="DispatchInterfaces\Interop\_CustomXMLPart.cs" />
+    <Compile Include="DispatchInterfaces\Interop\_IMsoDispObj.cs" />
     <Compile Include="NativeCaller\IRibbonUI.cs" />
     <Compile Include="Native\EncryptionProvider.cs" />
     <Compile Include="Native\IBlogExtensibility.cs" />
