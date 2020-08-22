@@ -181,29 +181,6 @@ namespace NetOffice
         }
 
         /// <summary>
-        /// Occurs when a new COMDynamicObject instance should be created
-        /// </summary>
-        public event OnCreateCOMDynamicEventHandler CreateCOMDynamic;
-
-        /// <summary>
-        /// Raise the CreateCOMDynamic event
-        /// </summary>
-        /// <param name="instance">requested instance</param>
-        /// <param name="comProxy">target proxy</param>
-        /// <returns>COMDynamicObject instance or null</returns>
-        private COMDynamicObject RaiseCreateCOMDynamic(ICOMObject instance, object comProxy)
-        {
-            if (null != CreateCOMDynamic)
-            {
-                OnCreateCOMDynamicEventArgs args = new OnCreateCOMDynamicEventArgs(instance, comProxy);
-                CreateCOMDynamic(this, args);
-                return args.Result;
-            }
-            else
-                return null;
-        }
-
-        /// <summary>
         /// Occurs when a new COMProxyShare instance should be created
         /// </summary>
         public event OnCreateProxyShareEventHandler CreateProxyShare;
@@ -871,7 +848,7 @@ namespace NetOffice
         }
 
         /// <summary>
-        /// Creates a new <see cref="ICOMObject"/> based on classType of comProxy. The method uses <see cref="Settings.EnableDynamicEventArguments"/> to reflect dynamics
+        /// Creates a new <see cref="ICOMObject"/> based on classType of comProxy.
         /// </summary>
         /// <param name="caller">parent there have created comProxy</param>
         /// <param name="comProxy">new created proxy</param>
@@ -879,7 +856,7 @@ namespace NetOffice
         /// <exception cref="CreateInstanceException">throws when its failed to create new instance</exception>
         public ICOMObject CreateEventArgumentObjectFromComProxy(ICOMObject caller, object comProxy)
         {
-            return CreateObjectFromComProxy(caller, comProxy, caller.Settings.EnableDynamicEventArguments);
+            return CreateObjectFromComProxy(caller, comProxy, false);
         }
 
         /// <summary>
@@ -1027,16 +1004,7 @@ namespace NetOffice
 
                         if (null == classType)
                         {
-                            if (allowDynamicObject && Settings.EnableDynamicObjects)
-                            {
-                                ICOMObject unknownInstance = RaiseCreateCOMDynamic(caller, comProxy);
-                                if(null == unknownInstance)
-                                    unknownInstance = new COMDynamicObject(caller, comProxy);
-                                unknownInstance = TryReplaceInstance(caller, unknownInstance, comProxyType);
-                                return unknownInstance;
-                            }
-                            else
-                                throw new FactoryException("Class does not exist: " + (true == String.IsNullOrWhiteSpace(fullClassName) ? ComTypes.TypeDescriptor.GetFullComponentClassName(comProxy) : fullClassName));
+                            throw new FactoryException("Class does not exist: " + (true == String.IsNullOrWhiteSpace(fullClassName) ? ComTypes.TypeDescriptor.GetFullComponentClassName(comProxy) : fullClassName));
                         }
 
                         _wrapperTypeCache.Add(fullClassName, classType);
