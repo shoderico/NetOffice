@@ -175,7 +175,7 @@ namespace NetOffice.PublisherApi
 
         ICOMObject IEnumerableProvider<NetOffice.PublisherApi.WizardValue>.GetComObjectEnumerator(ICOMObject parent)
         {
-            return NetOffice.Utils.GetComObjectEnumeratorAsProperty(parent, this, false);
+            return NetOffice.Utils.GetComObjectEnumeratorAsProperty(parent, this);
         }
 
         IEnumerable IEnumerableProvider<NetOffice.PublisherApi.WizardValue>.FetchVariantComObjectEnumerator(ICOMObject parent, ICOMObject enumerator)
@@ -208,7 +208,7 @@ namespace NetOffice.PublisherApi
         [SupportByVersion("Publisher", 14,15,16)]
 		IEnumerator NetRuntimeSystem.Collections.IEnumerable.GetEnumerator()
 		{
-			return NetOffice.Utils.GetProxyEnumeratorAsProperty(this, false);
+			return NetOffice.Utils.GetProxyEnumeratorAsProperty(this);
 		}
 
 		#endregion

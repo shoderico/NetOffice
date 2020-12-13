@@ -213,7 +213,7 @@ namespace NetOffice.VisioApi
 
         ICOMObject IEnumerableProvider<NetOffice.VisioApi.IVPath>.GetComObjectEnumerator(ICOMObject parent)
         {
-            return NetOffice.Utils.GetComObjectEnumeratorAsProperty(parent, this, false);
+            return NetOffice.Utils.GetComObjectEnumeratorAsProperty(parent, this);
         }
 
         IEnumerable IEnumerableProvider<NetOffice.VisioApi.IVPath>.FetchVariantComObjectEnumerator(ICOMObject parent, ICOMObject enumerator)
@@ -246,7 +246,7 @@ namespace NetOffice.VisioApi
         [SupportByVersion("Visio", 11,12,14,15,16)]
 		IEnumerator NetRuntimeSystem.Collections.IEnumerable.GetEnumerator()
 		{
-			return NetOffice.Utils.GetProxyEnumeratorAsProperty(this, false);
+			return NetOffice.Utils.GetProxyEnumeratorAsProperty(this);
 		}
 
 		#endregion

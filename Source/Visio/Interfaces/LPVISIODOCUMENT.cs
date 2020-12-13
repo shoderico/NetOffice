@@ -2144,7 +2144,7 @@ namespace NetOffice.VisioApi
 				object returnItem = Invoker.PropertyGet(this, "EmailRoutingData", paramsArray);
 				if((null != returnItem) && (returnItem is MarshalByRefObject))
 				{
-                    ICOMObject[] newObject = Factory.CreateObjectArrayFromComProxy(this, (object[])returnItem, false);
+                    ICOMObject[] newObject = Factory.CreateObjectArrayFromComProxy(this, (object[])returnItem);
 					return newObject;
 				}
 				else

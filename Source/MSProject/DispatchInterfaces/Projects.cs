@@ -241,7 +241,7 @@ namespace NetOffice.MSProjectApi
 
         ICOMObject IEnumerableProvider<NetOffice.MSProjectApi.Project>.GetComObjectEnumerator(ICOMObject parent)
         {
-            return NetOffice.Utils.GetComObjectEnumeratorAsProperty(parent, this, false);
+            return NetOffice.Utils.GetComObjectEnumeratorAsProperty(parent, this);
         }
 
         IEnumerable IEnumerableProvider<NetOffice.MSProjectApi.Project>.FetchVariantComObjectEnumerator(ICOMObject parent, ICOMObject enumerator)
@@ -274,7 +274,7 @@ namespace NetOffice.MSProjectApi
         [SupportByVersion("MSProject", 11,12,14)]
 		IEnumerator NetRuntimeSystem.Collections.IEnumerable.GetEnumerator()
 		{
-			return NetOffice.Utils.GetProxyEnumeratorAsProperty(this, false);
+			return NetOffice.Utils.GetProxyEnumeratorAsProperty(this);
 		}
 
 		#endregion

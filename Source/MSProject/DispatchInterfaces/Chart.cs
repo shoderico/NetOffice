@@ -1952,7 +1952,7 @@ namespace NetOffice.MSProjectApi
 			object returnItem = Invoker.MethodReturn(this, "Evaluate", paramsArray, modifiers);
 			if((null != returnItem) && (returnItem is MarshalByRefObject))
 			{
-				ICOMObject newObject = Factory.CreateObjectFromComProxy(this, returnItem, true);
+				ICOMObject newObject = Factory.CreateObjectFromComProxy(this, returnItem);
 				objType = (Int32)paramsArray[2];
 			    return newObject;
 			}

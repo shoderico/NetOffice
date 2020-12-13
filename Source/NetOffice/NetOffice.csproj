@@ -100,7 +100,6 @@
     <Compile Include="Contribution\Controls\InstanceMonitor.designer.cs">
       <DependentUpon>InstanceMonitor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Converter\ExpandableSettingsConverter.cs" />
     <Compile Include="CoreExtensions\Core.Nested.cs" />
     <Compile Include="CoreExtensions\CoreFactoryExtensions.cs" />
     <Compile Include="CoreExtensions\CoreMethodExtensions.cs" />
@@ -112,10 +111,7 @@
     <Compile Include="Attributes\EventSinkAttribute.cs" />
     <Compile Include="Attributes\IndexPropertyAttribute.cs" />
     <Compile Include="Attributes\InvokeAsAttribute.cs" />
-    <Compile Include="COMDynamicObject.cs" />
-    <Compile Include="Converter\COMDynamicObjectExpandableObjectConverter.cs" />
     <Compile Include="Dynamics\COMDynamicMetaObject.cs" />
-    <Compile Include="Converter\COMObjectExpandableObjectConverter.cs" />
     <Compile Include="COMProxyShare.cs" />
     <Compile Include="Attributes\InternalNameAttribute.cs" />
     <Compile Include="Attributes\ComProgIdAttribute.cs" />
