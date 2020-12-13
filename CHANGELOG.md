@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.0-preview
+
+### Breaking Changes
+* Remove "duck tales" implementation [#283](https://github.com/NetOfficeFw/NetOffice/issues/283)  
+  Affected types:
+  * removed all types from namespace `NetOffice.DuckTales`
+
 ## v1.8.0
 
 ### Breaking Changes
