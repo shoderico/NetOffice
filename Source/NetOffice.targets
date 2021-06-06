@@ -1,0 +1,19 @@
+﻿<Project>
+  <!-- Code signing -->
+  <ItemGroup>
+    <TargetToSign Include="$(IntermediateOutputPath)$(TargetName)$(TargetExt)" Condition=" '$(OutputType)' == 'Library' Or '$(OutputType)' == 'Exe' ">
+      <SignToolSha2LogFile>$(IntermediateOutputPath)$(TargetName)_sign_sha256.log</SignToolSha2LogFile>
+    </TargetToSign>
+  </ItemGroup>
+
+  <Target Name="SignOutputAfterCompile"
+          AfterTargets="CoreCompile"
+          DependsOnTargets="SignOutputTarget" />
+
+  <Target Name="SignOutputTarget"
+          Outputs="@(TargetToSign)"
+          Condition=" '$(SignOutput)' == 'true' ">
+    <Exec Command="$(SignTool) sign /v /fd sha256 /td sha256 /sha1 $(SignCertificateThumbprint) /tr $(SignTimestampServerSha256) &quot;%(TargetToSign.FullPath)&quot; &gt; &quot;%(TargetToSign.SignToolSha2LogFile)&quot;" />
+    <Message Text="Signed %(TargetToSign.FullPath)" />
+  </Target>
+</Project>
