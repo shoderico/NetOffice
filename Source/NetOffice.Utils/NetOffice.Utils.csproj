@@ -1,0 +1,97 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyTitle>NetOffice.Utils</AssemblyTitle>
+    <Description>NetOffice Utilities</Description>
+    <RootNamespace>NetOffice</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>NetOfficeFw.Utils</PackageId>
+    <Description>NetOffice utilities library.</Description>
+    <PackageTags>netoffice netofficefw utils</PackageTags>
+  </PropertyGroup>
+
+  <Import Project="..\NetOffice.props" />
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="[4.6.0,)" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
+    <PackageReference Include="System.Drawing.Common" Version="[4.6.0,)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Office\OfficeApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Tools\Dialogs\AboutDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Tools\Dialogs\AboutDialog.Designer.cs">
+      <DependentUpon>AboutDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Tools\Dialogs\DiagnosticsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Tools\Dialogs\DiagnosticsDialog.Designer.cs">
+      <DependentUpon>DiagnosticsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Tools\Dialogs\ErrorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Tools\Dialogs\ErrorDialog.Designer.cs">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Tools\Dialogs\PropertyGridDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Tools\Dialogs\PropertyGridDialog.Designer.cs">
+      <DependentUpon>PropertyGridDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Tools\Dialogs\RichTextDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Tools\Dialogs\RichTextDialog.Designer.cs">
+      <DependentUpon>RichTextDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Tools\Dialogs\ToolsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Tools\Dialogs\ToolsDialog.Designer.cs">
+      <DependentUpon>ToolsDialog.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Tools\Dialogs\AboutDialog.resx">
+      <DependentUpon>AboutDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Tools\Dialogs\DiagnosticsDialog.resx">
+      <DependentUpon>DiagnosticsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Tools\Dialogs\ErrorDialog.resx">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Tools\Dialogs\PropertyGridDialog.resx">
+      <DependentUpon>PropertyGridDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Tools\Dialogs\RichTextDialog.resx">
+      <DependentUpon>RichTextDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Tools\Dialogs\ToolsDialog.resx">
+      <DependentUpon>ToolsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Tools\Contribution\" />
+  </ItemGroup>
+
+</Project>

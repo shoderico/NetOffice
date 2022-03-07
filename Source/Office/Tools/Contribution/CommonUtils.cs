@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Globalization;
 using System.Security.Principal;
 using NetOffice.OfficeApi.Tools.Informations;
+using NetOffice.OfficeApi.Tools.Dialogs;
 
 namespace NetOffice.OfficeApi.Tools.Contribution
 {
@@ -44,7 +45,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         private bool? _applicationIs2007OrHigher;
         private bool? _adminPermissions;
         private bool _isAutomation;
-        private DialogUtils _dialogUtils;
+        private IDialogUtils _dialogUtils;
         private ColorUtils _colorUtils;
         private ImageUtils _imageUtils;
         private TrayUtils _trayUtils;
@@ -225,14 +226,16 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <summary>
         /// Dialog related utils
         /// </summary>
-        public DialogUtils Dialog
+        public IDialogUtils Dialog
         {
             get
             {
                 lock (_lock)
                 {
-                    if (null == _dialogUtils)
-                        _dialogUtils = OnCreateDialogUtils();
+                    if (null == _dialogUtils && OnCreateDialogUtils != null)
+                    {
+                        _dialogUtils = OnCreateDialogUtils(this);
+                    }
                 }
                 return _dialogUtils;
             }
@@ -455,10 +458,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// Creates an instance of DialogUtils
         /// </summary>
         /// <returns>instance of DialogUtils</returns>
-        protected internal virtual DialogUtils OnCreateDialogUtils()
-        {
-            return new DialogUtils(this);
-        }
+        public Func<CommonUtils, IDialogUtils> OnCreateDialogUtils { get; set; }
 
         /// <summary>
         /// Creates an instances of ResourceUtils

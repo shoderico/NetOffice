@@ -2,304 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using NetOffice.OfficeApi.Tools.Dialogs;
+using NetOffice.OfficeApi.Tools.Contribution;
 
-namespace NetOffice.OfficeApi.Tools.Contribution
+namespace NetOffice.OfficeApi.Tools.Dialogs
 {
     /// <summary>
     /// Dialog related utils
     /// </summary>
-    public class DialogUtils
+    public class DialogUtils : IDialogUtils
     {
         #region Embedded Definitions
-
-        /// <summary>
-        /// Specifies constants defining which information to display.
-        /// </summary>
-        public enum MessageIcon
-        {
-            /// <summary>
-            /// The message box contain no symbols.
-            /// </summary>
-            None = 0,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of a white X in a circle with a  red background.
-            /// </summary>
-            Hand = 16,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of white X in a circle with a red background.
-            /// </summary>
-            Stop = 16,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of white X in a circle with a red background.
-            /// </summary>
-            Error = 16,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of a question mark in a circle.
-            /// </summary>
-            Question = 32,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of an exclamation point in a triangle with a yellow background.
-            /// </summary>
-            Exclamation = 48,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of an exclamation point in a triangle with a yellow background.
-            /// </summary>
-            Warning = 48,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of a lowercase letter i in a circle.
-            /// </summary>
-            Asterisk = 64,
-
-            /// <summary>
-            /// The message box contains a symbol consisting of a lowercase letter i in a circle.
-            /// </summary>
-            Information = 64
-        }
-
-        /// <summary>
-        /// Specifies constants defining which buttons to display
-        /// </summary>
-        public enum Buttons
-        {
-            /// <summary>
-            /// The message box contains an OK button.
-            /// </summary>
-            OK = 0,
-
-            /// <summary>
-            /// The message box contains OK and Cancel buttons.
-            /// </summary>
-            OKCancel = 1,
-
-            /// <summary>
-            /// The message box contains Abort, Retry, and Ignore buttons.
-            /// </summary>
-            AbortRetryIgnore = 2,
-
-            /// <summary>
-            /// The message box contains Yes, No, and Cancel buttons.
-            /// </summary>
-            YesNoCancel = 3,
-
-            /// <summary>
-            /// The message box contains Yes and No buttons.
-            /// </summary>
-            YesNo = 4,
-
-            /// <summary>
-            /// The message box contains Retry and Cancel buttons.
-            /// </summary>
-            RetryCancel = 5
-        }
-
-        /// <summary>
-        /// Specifies identifiers to indicate the return value of a dialog box.
-        /// </summary>
-        public enum Result
-        {
-            /// <summary>
-            /// Nothing is returned from the dialog box. This means that the modal dialog continues running.
-            /// </summary>
-            None = 0,
-
-            /// <summary>
-            /// The dialog box return value is OK (usually sent from a button labeled OK).
-            /// </summary>
-            OK = 1,
-
-            /// <summary>
-            /// The dialog box return value is Cancel (usually sent from a button labeled Cancel).
-            /// </summary>
-            Cancel = 2,
-
-            /// <summary>
-            /// The dialog box return value is Abort (usually sent from a button labeled Abort).
-            /// </summary>
-            Abort = 3,
-
-            /// <summary>
-            /// The dialog box return value is Retry (usually sent from a button labeled Retry).
-            /// </summary>
-            Retry = 4,
-
-            /// <summary>
-            /// The dialog box return value is Ignore (usually sent from a button labeled Ignore).
-            /// </summary>
-            Ignore = 5,
-
-            /// <summary>
-            /// The dialog box return value is Yes (usually sent from a button labeled Yes).
-            /// </summary>
-            Yes = 6,
-
-            /// <summary>
-            ///  The dialog box return value is No (usually sent from a button labeled No).
-            /// </summary>
-            No = 7
-        }
-
-        /// <summary>
-        /// Indicates which kind of dialog is shown
-        /// </summary>
-        public enum DialogType
-        {
-            /// <summary>
-            /// Custom dialog instance
-            /// </summary>
-            Custom = 0,
-
-            /// <summary>
-            /// Windows.Forms MessageBox
-            /// </summary>
-            MessageBox = 1,
-
-            /// <summary>
-            /// Error Dialog
-            /// </summary>
-            Error = 2,
-
-            /// <summary>
-            /// About Dialog
-            /// </summary>
-            About = 3,
-
-            /// <summary>
-            /// Diagnostics Dialog
-            /// </summary>
-            Diagnostics = 4,
-
-            /// <summary>
-            /// Multi-Line Text Dialog, also RichText is supported
-            /// </summary>
-            Text = 5
-        }
-
-        /// <summary>
-        /// Dialog show event arguments
-        /// </summary>
-        public class DialogShowEventArgs : EventArgs
-        {
-            #region Ctor
-
-            /// <summary>
-            /// Creates an instance of the class
-            /// </summary>
-            /// <param name="type">dialog type</param>
-            /// <param name="suppressed">dialog want not shown</param>
-            /// <param name="modal">dialog want shown as modal to its parent</param>
-            /// <param name="arguments">arguments dependent on dialog type</param>
-            internal DialogShowEventArgs(DialogType type, bool suppressed, bool modal, IEnumerable<KeyValuePair<string, object>> arguments)
-            {
-                Type = type;
-                Suppressed = suppressed;
-                Modal = modal;
-                Arguments = null != arguments ? arguments : new List<KeyValuePair<string, object>>();
-            }
-
-            #endregion
-
-            #region Properties
-
-            /// <summary>
-            /// Dialog want shown as modal to its parent.
-            /// </summary>
-            public bool Modal { get; private set; }
-
-            /// <summary>
-            /// The dialog want not shown because its currently forbidden by dialog settings
-            /// </summary>
-            public bool Suppressed { get; private set; }
-
-            /// <summary>
-            /// Shown dialog type
-            /// </summary>
-            public DialogUtils.DialogType Type { get; private set; }
-
-            /// <summary>
-            /// Arguments dependent on dialog type
-            /// </summary>
-            public IEnumerable<KeyValuePair<string, object>> Arguments { get; private set; }
-
-            #endregion
-        }
-
-        /// <summary>
-        /// Dialog shown event arguments
-        /// </summary>
-        public class DialogShownEventArgs : EventArgs
-        {
-            #region Ctor
-
-            /// <summary>
-            /// Creates an instance of the class
-            /// </summary>
-            /// <param name="type">dialog type</param>
-            /// <param name="suppressed">dialog has not shown</param>
-            /// <param name="modal">dialog has shown as modal to its parent</param>
-            /// <param name="result">dialog result if set</param>
-            /// <param name="arguments">arguments dependent on dialog type</param>
-            internal DialogShownEventArgs(DialogType type, bool suppressed, bool modal, Result result, IEnumerable<KeyValuePair<string, object>> arguments)
-            {
-                Type = type;
-                Suppressed = suppressed;
-                Modal = modal;
-                Result = result;
-                Arguments = null != arguments ? arguments : new List<KeyValuePair<string, object>>();
-            }
-
-            #endregion
-
-            #region Properties
-
-            /// <summary>
-            /// Dialog has shown as modal to its parent.
-            /// </summary>
-            public bool Modal { get; private set; }
-
-            /// <summary>
-            /// The dialog has not shown because its currently forbidden by dialog settings
-            /// </summary>
-            public bool Suppressed { get; private set; }
-
-            /// <summary>
-            /// Dialog result if set
-            /// </summary>
-            public Result Result { get; private set; }
-
-            /// <summary>
-            /// Shown dialog type
-            /// </summary>
-            public DialogUtils.DialogType Type { get; private set; }
-
-            /// <summary>
-            /// Arguments dependent on dialog type
-            /// </summary>
-            public IEnumerable<KeyValuePair<string, object>> Arguments { get; private set; }
-
-            #endregion
-        }
-
-        /// <summary>
-        /// Dialog shown event handler
-        /// </summary>
-        /// <param name="sender">sender instance</param>
-        /// <param name="arguments">dialog shown arguments</param>
-        public delegate void DialogShownEventHandler(DialogUtils sender, DialogShownEventArgs arguments);
-
-        /// <summary>
-        /// Dialog show event handler
-        /// </summary>
-        /// <param name="sender">sender instance</param>
-        /// <param name="arguments">dialog show arguments</param>
-        public delegate void DialogShowEventHandler(DialogUtils sender, DialogShowEventArgs arguments);
 
         /// <summary>
         /// Encapsulate caller arguments to observe non-modal shown dialogs and fire DialogShown event after close
@@ -313,7 +25,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             /// </summary>
             /// <param name="type">shown dialog type</param>
             /// <param name="arguments">arguments dependent on dialog type</param>
-            internal NonModalDialogValue(DialogUtils.DialogType type, IEnumerable<KeyValuePair<string, object>> arguments)
+            internal NonModalDialogValue(DialogType type, IEnumerable<KeyValuePair<string, object>> arguments)
             {
                 Type = type;
                 Arguments = null != arguments ? arguments : new List<KeyValuePair<string, object>>();
@@ -326,7 +38,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             /// <summary>
             /// Shown dialog type
             /// </summary>
-            internal DialogUtils.DialogType Type { get; private set; }
+            internal DialogType Type { get; private set; }
 
             /// <summary>
             /// Arguments dependent on dialog type
@@ -352,7 +64,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// Creates an instance of the class
         /// </summary>
         /// <param name="owner">owner instance</param>
-        protected internal DialogUtils(CommonUtils owner)
+        public DialogUtils(CommonUtils owner)
         {
             if (null == owner)
                 throw new ArgumentNullException("owner");
@@ -362,7 +74,6 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             SuppressOnAutomation = true;
             SuppressOnHide = true;
             Layout = new DialogLayoutSettings();
-            Localization = new DialogLocalizationSettings(ToolsDialog.CreateDialogSchema());
         }
 
         #endregion
@@ -379,7 +90,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// </summary>
         public event DialogShownEventHandler DialogShown;
 
-        private void RaiseDialogShown(DialogType type, bool suppressed, bool modal, Result result, IEnumerable<KeyValuePair<string, object>> arguments)
+        private void RaiseDialogShown(DialogType type, bool suppressed, bool modal, DialogResult result, IEnumerable<KeyValuePair<string, object>> arguments)
         {
             DialogShownEventArgs args = new DialogShownEventArgs(type, suppressed, modal, result, arguments);
             RaiseDialogShown(args);
@@ -432,11 +143,6 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// </summary>
         public DialogLayoutSettings Layout { get; private set; }
 
-        /// <summary>
-        /// Default dialogs localization settings
-        /// </summary>
-        public DialogLocalizationSettings Localization { get; private set; }
-
         #endregion
 
         #region Methods
@@ -471,7 +177,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             RaiseDialogShow(DialogType.Diagnostics, isCurrentlySuspended, modal, null);
             if (isCurrentlySuspended)
             {
-                RaiseDialogShown(DialogType.Diagnostics, true, modal, Result.No, null);
+                RaiseDialogShown(DialogType.Diagnostics, true, modal, DialogResult.No, null);
                 return;
             }
 
@@ -498,7 +204,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             if (modal)
             {
                 dlg.ShowDialog(owner);
-                RaiseDialogShown(DialogType.Diagnostics, false, true, Result.No, null);
+                RaiseDialogShown(DialogType.Diagnostics, false, true, DialogResult.No, null);
             }
             else
             {
@@ -557,7 +263,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             RaiseDialogShow(DialogType.Error, isCurrentlySuspended, modal, arguments);
             if (isCurrentlySuspended)
             {
-                RaiseDialogShown(DialogType.Error, true, modal, Result.No, arguments);
+                RaiseDialogShown(DialogType.Error, true, modal, DialogResult.No, arguments);
                 return;
             }
 
@@ -572,7 +278,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             if (modal)
             {
                 dlg.ShowDialog(owner);
-                RaiseDialogShown(DialogType.Error, false, true, Result.No, arguments);
+                RaiseDialogShown(DialogType.Error, false, true, DialogResult.No, arguments);
             }
             else
             {
@@ -731,7 +437,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             RaiseDialogShow(DialogType.About, isCurrentlySuspended, modal, arguments);
             if (isCurrentlySuspended)
             {
-                RaiseDialogShown(DialogType.About, true, modal, Result.None, arguments);
+                RaiseDialogShown(DialogType.About, true, modal, DialogResult.None, arguments);
                 return;
             }
 
@@ -746,7 +452,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             if (modal)
             {
                 dlg.ShowDialog(owner);
-                RaiseDialogShown(DialogType.About, false, true, Result.None, arguments);
+                RaiseDialogShown(DialogType.About, false, true, DialogResult.None, arguments);
             }
             else
             {
@@ -794,7 +500,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="timeoutSeconds">timeout in seconds</param>
         /// <param name="skipOnUserAction">skip timeout on user action</param>
         /// <returns>DialogResult, always none if not modal</returns>
-        public virtual Result ShowText(object modalOwner, string caption, string text, string checkText, bool modal, Size size, int timeoutSeconds, bool skipOnUserAction, Result defaultResult)
+        public virtual DialogResult ShowText(object modalOwner, string caption, string text, string checkText, bool modal, Size size, int timeoutSeconds, bool skipOnUserAction, DialogResult defaultResult)
         {
             IWin32Window owner = Running.Win32Window.Create(modalOwner);
 
@@ -823,15 +529,15 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             if (modal)
             {
                 DialogResult dlgResult = dlg.ShowDialog(owner);
-                RaiseDialogShown(DialogType.Text, false, true, (Result)dlgResult, arguments);
-                return (Result)dlgResult;
+                RaiseDialogShown(DialogType.Text, false, true, (DialogResult)dlgResult, arguments);
+                return (DialogResult)dlgResult;
             }
             else
             {
                 _openNonModalDialogs.Add(dlg, new NonModalDialogValue(DialogType.Text, arguments));
                 dlg.FormClosed += new FormClosedEventHandler(NonModalDialog_FormClosed);
                 dlg.Show(owner);
-                return Result.None;
+                return DialogResult.None;
             }
         }
 
@@ -846,7 +552,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="size">size for the dialog. Size.Empty to use default size</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>Result, always none if not modal</returns>
-        public virtual Result ShowText(object modalOwner, string caption, string text, string checkText, bool modal, Size size, Result defaultResult)
+        public virtual DialogResult ShowText(object modalOwner, string caption, string text, string checkText, bool modal, Size size, DialogResult defaultResult)
         {
             return ShowText(modalOwner, caption, text, checkText, modal, size, 0, false, defaultResult);
         
@@ -862,7 +568,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="size">size for the dialog. Size.Empty to use default size</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>Result, always none if not modal</returns>
-        public virtual Result ShowText(string caption, string text, string checkText, bool modal, Size size, Result defaultResult)
+        public virtual DialogResult ShowText(string caption, string text, string checkText, bool modal, Size size, DialogResult defaultResult)
         {
             return ShowText(null, caption, text, checkText, modal, size, defaultResult);
         }
@@ -875,7 +581,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="checkText">additional checkbox want be shown if set. If its true, the checkbox must be checked for result DialogResult.Ok</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>Result, always none if not modal</returns>
-        public virtual Result ShowText(string caption, string text, string checkText, Result defaultResult)
+        public virtual DialogResult ShowText(string caption, string text, string checkText, DialogResult defaultResult)
         {
             return ShowText(null, caption, text, checkText, true, Size.Empty, defaultResult);
         }
@@ -889,7 +595,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="skipOnUserAction">skip timeout on user action</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>Result, always none if not modal</returns>
-        public virtual Result ShowText(string caption, string text, int timeoutSeconds, bool skipOnUserAction, Result defaultResult)
+        public virtual DialogResult ShowText(string caption, string text, int timeoutSeconds, bool skipOnUserAction, DialogResult defaultResult)
         {
             return ShowText(null, caption, text, null, true, Size.Empty, timeoutSeconds, skipOnUserAction, defaultResult);
         }  
@@ -904,7 +610,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="icon">default icon</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(object modalOwner, string text, string caption, Buttons buttons, MessageIcon icon, Result defaultResult)
+        public DialogResult ShowMessageBox(object modalOwner, string text, string caption, DialogButtons buttons, DialogMessageIcon icon, DialogResult defaultResult)
         {
             IWin32Window owner = Running.Win32Window.Create(modalOwner);
 
@@ -922,8 +628,8 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             }
 
             DialogResult dlgResult = MessageBox.Show(owner, text, caption, (MessageBoxButtons)buttons, (MessageBoxIcon)icon);
-            RaiseDialogShown(DialogType.MessageBox, false, true, (Result)dlgResult, arguments);
-            return (Result)dlgResult;
+            RaiseDialogShown(DialogType.MessageBox, false, true, (DialogResult)dlgResult, arguments);
+            return (DialogResult)dlgResult;
         }
 
         /// <summary>
@@ -935,7 +641,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="defaultResult">result if its not shown</param>
         /// <param name="icon">icon to show</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(string text, string caption, Buttons buttons, MessageIcon icon, Result defaultResult)
+        public DialogResult ShowMessageBox(string text, string caption, DialogButtons buttons, DialogMessageIcon icon, DialogResult defaultResult)
         {           
             bool isCurrentlySuspended = IsCurrentlySuspended();
 
@@ -951,8 +657,8 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             }
 
             DialogResult dlgResult = MessageBox.Show(null, text, caption, (MessageBoxButtons)buttons, (MessageBoxIcon)icon);
-            RaiseDialogShown(DialogType.MessageBox, false, true, (Result)dlgResult, arguments);
-            return (Result)dlgResult;
+            RaiseDialogShown(DialogType.MessageBox, false, true, (DialogResult)dlgResult, arguments);
+            return (DialogResult)dlgResult;
         }
 
         /// <summary>
@@ -962,9 +668,9 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="icon">default icon</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(string text, MessageIcon icon, Result defaultResult)
+        public DialogResult ShowMessageBox(string text, DialogMessageIcon icon, DialogResult defaultResult)
         {
-            return ShowMessageBoxInternal(null, text, _owner.Infos.Assembly.AssemblyTitle, Buttons.OK, icon, defaultResult);
+            return ShowMessageBoxInternal(null, text, _owner.Infos.Assembly.AssemblyTitle, DialogButtons.OK, icon, defaultResult);
         }
 
         /// <summary>
@@ -975,9 +681,9 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="icon">default icon</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(string text, string caption, MessageIcon icon, Result defaultResult)
+        public DialogResult ShowMessageBox(string text, string caption, DialogMessageIcon icon, DialogResult defaultResult)
         {
-            return ShowMessageBoxInternal(null, text, caption, Buttons.OK, icon, defaultResult);   
+            return ShowMessageBoxInternal(null, text, caption, DialogButtons.OK, icon, defaultResult);   
         }
 
         /// <summary>
@@ -988,9 +694,9 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="buttons">user selection buttons</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(string text, string caption, Buttons buttons, Result defaultResult)
+        public DialogResult ShowMessageBox(string text, string caption, DialogButtons buttons, DialogResult defaultResult)
         {
-            return ShowMessageBoxInternal(null, text, caption, buttons, MessageIcon.None, defaultResult);
+            return ShowMessageBoxInternal(null, text, caption, buttons, DialogMessageIcon.None, defaultResult);
         }
 
         /// <summary>
@@ -1000,9 +706,9 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="caption">dialog title</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(string text, string caption, Result defaultResult)
+        public DialogResult ShowMessageBox(string text, string caption, DialogResult defaultResult)
         {
-            return ShowMessageBoxInternal(null, text, caption, Buttons.OK, MessageIcon.None, defaultResult);
+            return ShowMessageBoxInternal(null, text, caption, DialogButtons.OK, DialogMessageIcon.None, defaultResult);
         }
 
         /// <summary>
@@ -1011,9 +717,9 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="text">text to display</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        public Result ShowMessageBox(string text, Result defaultResult)
+        public DialogResult ShowMessageBox(string text, DialogResult defaultResult)
         {
-            return ShowMessageBoxInternal(null, text, _owner.Infos.Assembly.AssemblyTitle, Buttons.OK, MessageIcon.None, defaultResult);
+            return ShowMessageBoxInternal(null, text, _owner.Infos.Assembly.AssemblyTitle, DialogButtons.OK, DialogMessageIcon.None, defaultResult);
         }
 
         /// <summary>
@@ -1025,7 +731,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="arguments">custom arguments</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>DialogResult, always none if not modal</returns>
-        public Result ShowDialog(object modalOwner, object dialogInstance, bool modal, IEnumerable<KeyValuePair<string, object>> arguments, Result defaultResult)
+        public DialogResult ShowDialog(object modalOwner, object dialogInstance, bool modal, IEnumerable<KeyValuePair<string, object>> arguments, DialogResult defaultResult)
         {
             Form dialog = (Form)dialogInstance;
 
@@ -1046,15 +752,15 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             if (modal)
             {
                 DialogResult dlgResult = dialog.ShowDialog(owner);
-                RaiseDialogShown(DialogType.Custom, false, true, (Result)dlgResult, arguments);
-                return (Result)dlgResult;
+                RaiseDialogShown(DialogType.Custom, false, true, (DialogResult)dlgResult, arguments);
+                return (DialogResult)dlgResult;
             }
             else
             {
                 _openNonModalDialogs.Add(dialog, new NonModalDialogValue(DialogType.Custom, arguments));
                 dialog.FormClosed += new FormClosedEventHandler(NonModalDialog_FormClosed);
                 dialog.Show(owner);
-                return Result.None;
+                return DialogResult.None;
             }
         }
 
@@ -1065,9 +771,9 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="dialog">dialog instance to show</param>
         /// <param name="modal">show dialog modal to its owner window</param>
         /// <returns>DialogResult, always none if not modal</returns>
-        public Result ShowDialog(object modalOwner, object dialog, bool modal)
+        public DialogResult ShowDialog(object modalOwner, object dialog, bool modal)
         {
-            return ShowDialog(modalOwner, (Form)dialog, modal, null, Result.None);
+            return ShowDialog(modalOwner, (Form)dialog, modal, null, DialogResult.None);
         }
 
         /// <summary>
@@ -1078,7 +784,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="modal">show dialog modal to its owner window</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>DialogResult, always none if not modal</returns>
-        public Result ShowDialog(object modalOwner, object dialog, bool modal, Result defaultResult)
+        public DialogResult ShowDialog(object modalOwner, object dialog, bool modal, DialogResult defaultResult)
         {
             return ShowDialog(modalOwner, (Form)dialog, modal, null, defaultResult);
         }
@@ -1091,7 +797,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="arguments">custom arguments</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>DialogResult, always none if not modal</returns>
-        public Result ShowDialog(object dialog, bool modal, IEnumerable<KeyValuePair<string, object>> arguments, Result defaultResult)
+        public DialogResult ShowDialog(object dialog, bool modal, IEnumerable<KeyValuePair<string, object>> arguments, DialogResult defaultResult)
         {
             return ShowDialog(null, (Form)dialog, modal, arguments, defaultResult);
         }
@@ -1103,7 +809,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="modal">show dialog modal to its owner window</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>DialogResult, always none if not modal</returns>
-        public Result ShowDialog(object dialog, bool modal, Result defaultResult)
+        public DialogResult ShowDialog(object dialog, bool modal, DialogResult defaultResult)
         {
             return ShowDialog(null, (Form)dialog, modal, null, defaultResult);
         }
@@ -1118,7 +824,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="icon">default icon</param>
         /// <param name="defaultResult">result if its not shown</param>
         /// <returns>user selection</returns>
-        internal Result ShowMessageBoxInternal(object modalOwner, string text, string caption, Buttons buttons, MessageIcon icon, Result defaultResult)
+        internal DialogResult ShowMessageBoxInternal(object modalOwner, string text, string caption, DialogButtons buttons, DialogMessageIcon icon, DialogResult defaultResult)
         {
             IWin32Window owner = Running.Win32Window.Create(modalOwner);
 
@@ -1136,8 +842,8 @@ namespace NetOffice.OfficeApi.Tools.Contribution
             }
 
             DialogResult dlgResult = MessageBox.Show(owner, text, caption, (MessageBoxButtons)buttons, (MessageBoxIcon)icon);
-            RaiseDialogShown(DialogType.MessageBox, false, true, (Result)dlgResult, arguments);
-            return (Result)dlgResult;
+            RaiseDialogShown(DialogType.MessageBox, false, true, (DialogResult)dlgResult, arguments);
+            return (DialogResult)dlgResult;
         }
 
         /// <summary>
@@ -1156,7 +862,6 @@ namespace NetOffice.OfficeApi.Tools.Contribution
         /// <param name="dialogName">name of the dialog</param>
         protected virtual void OnCreateToolsDialog(ToolsDialog dialog, string dialogName)
         {
-            dialog.DoLocalization(Localization[dialogName][CurrentLanguage, true]);
             dialog.DoLayout(Layout);
         }
         
@@ -1225,7 +930,7 @@ namespace NetOffice.OfficeApi.Tools.Contribution
                 if (_openNonModalDialogs.ContainsKey(formSender))
                 {
                     NonModalDialogValue formValue = _openNonModalDialogs[formSender];
-                    RaiseDialogShown(formValue.Type, false, false, (Result)formSender.DialogResult, formValue.Arguments);
+                    RaiseDialogShown(formValue.Type, false, false, (DialogResult)formSender.DialogResult, formValue.Arguments);
                 }
             }
             catch (Exception exception)
